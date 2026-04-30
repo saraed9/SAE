@@ -1,0 +1,33 @@
+.login-screen {
+    min-height: calc(100vh - 70px); /* Hauteur écran moins la navbar */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.login-card {
+    background: white;
+    width: 100%;
+    max-width: 450px;
+    padding: 2rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.back-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6b7280;
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    width: 100%;
+    max-width: 450px;
+}
+
+.back-link:hover {
+    color: #111827;
+}

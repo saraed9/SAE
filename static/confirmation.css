@@ -1,0 +1,51 @@
+.confirmation-wrapper {
+    max-width: 800px;
+    margin: 3rem auto;
+}
+
+.success-card {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--radius);
+    text-align: center;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+}
+
+.invoice-box {
+    background: white;
+    padding: 2.5rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.invoice-header {
+    font-size: 1.4rem;
+    border-bottom: 2px solid var(--secondary);
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+
+.item-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.item-details h5 { margin: 0; }
+.item-details p { margin: 0.2rem 0; color: #666; font-size: 0.9rem; }
+
+.grand-total {
+    text-align: right;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #4f46e5;
+    margin-top: 2rem;
+}
+
+.action-btns {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2.5rem;
+}

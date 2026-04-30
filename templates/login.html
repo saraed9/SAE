@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Connexion</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    </head>
+    <body>
+        <!-- Barre de navigation (main.css) -->
+        <nav class="navbar">
+            <div class="container nav-content">
+                <a href="/" class="btn btn-nav">
+                    <span>🏠</span><span class="font-medium">Page d'accueil</span>
+                </a>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <a href="/panier" class="btn btn-nav"><span>🛒</span> Panier</a>
+                    <div class="group">
+                        <button class="btn btn-nav"><span>👤</span></button>
+                        <div class="dropdown-menu">
+                            <a href="/login" class="dropdown-item">🔑 Se connecter</a>
+                            <a href="/register" class="dropdown-item">📝 S'inscrire</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Contenu de la Page -->
+        <div class="login-screen">
+            <a href="/" class="back-link">
+                <span>← Accueil</span>
+            </a>
+
+            <div class="login-card">
+                <h2 style="margin-bottom: 2rem;">Connexion</h2>
+
+                <form action="/login" method="POST">
+                    <!-- Champ Email -->
+                    <div class="form-group">
+                        <label class="label">Email</label>
+                        <input type="email" name="email" placeholder="exemple@email.com" class="input" required>
+                    </div>
+
+                    <!-- Champ Mot de passe -->
+                    <div class="form-group">
+                        <label class="label">Mot de passe</label>
+                        <input type="password" name="password" placeholder="••••••••" class="input" required>
+                        <a href="#" style="font-size: 0.675rem; color: #4f46e5; text-decoration: none;">Mot de passe oublié ?</a>
+                    </div>
+
+                    <!-- Se souvenir de moi -->
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" name="remember" id="remember" style="width: 1rem; height: 1rem;">
+                        <label for="remember" class="label" style="margin: 0;">Se souvenir de moi</label>
+                    </div>
+
+                    <!-- Bouton Submit -->
+                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 1rem;">
+                        Se connecter
+                    </button>
+                </form>
+                <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: #4b5563;">
+                    Pas encore de compte ? <a href="/register" style="color: #4f46e5; font-weight: 600;">S'inscrire</a>
+                </p>
+            </div>
+        </div>
+    </body>
+</html>

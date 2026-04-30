@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Mon Panier</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='panier.css') }}">
+    </head>
+    <body>
+        <!-- Barre de navigation (main.css) -->
+        <nav class="navbar">
+            <div class="container nav-content">
+                <a href="/" class="btn btn-nav">🏠 Page d'accueil</a>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <a href="/panier" class="btn btn-nav">🛒 Panier</a>
+                    <div class="group">
+                        <button class="btn btn-nav"><span>👤</span></button>
+                        <div class="dropdown-menu">
+                            {% if not session.get('user_email') %}
+                                <a href="/login" class="dropdown-item">🔑 Se connecter</a>
+                                <a href="/register" class="dropdown-item">📝 S'inscrire</a>
+                            {% else %}
+                                <a href="/profil" class="dropdown-item">👤 Mon Compte</a>
+                                <div style="border-top: 1px solid #eee; margin: 0.5rem 0;"></div>
+                                <a href="/logout" class="dropdown-item" style="color: var(--destructive);">🚪 Déconnexion</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+            <h2 style="margin-top: 2rem; font-size: 2rem;">Mon Panier</h2>
+
+            <div class="cart-grid">
+                <!-- Liste des articles -->
+                <div class="cart-items-list">
+                    {% for item in items %}
+                    <div class="cart-item">
+                        <div class="item-main">
+                            <h3>{{ item.title }}</h3>
+                            <p>Date : {{ item.date }}</p>
+                            
+                            <div class="quantity-controls">
+                                <span style="font-size: 0.9rem;">Quantité :</span>
+                                <button class="btn-qty">-</button>
+                                <span class="font-bold">{{ item.quantity }}</span>
+                                <button class="btn-qty">+</button>
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: right; display: flex; flex-direction: column; justify-content: space-between;">
+                            <button style="color: var(--destructive); background: none; border: none; cursor: pointer; font-size: 0.8rem;">Supprimer</button>
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #4f46e5;">{{ item.subtotal }}€</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Récapitulatif -->
+                <aside class="summary-card">
+                    <h3 style="margin-top: 0;">Récapitulatif</h3>
+                    <div class="summary-row">
+                        <span>Total</span>
+                        <span style="color: #4f46e5;">{{ total }}€</span>
+                    </div>
+                    <a href="/paiement" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 1rem;">
+                        Passer au paiement
+                    </a>
+                </aside>
+            </div>
+        </div>
+    </body>
+</html>

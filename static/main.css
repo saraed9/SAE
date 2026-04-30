@@ -1,0 +1,120 @@
+:root {
+    /* Vos couleurs OKLCH et Hexa */
+    --primary: #030213;
+    --primary-foreground: #ffffff;
+    --secondary: #f3f3f5;
+    --secondary-foreground: #030213;
+    --background: #f9fafb;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --radius: 0.625rem;
+    --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --destructive: #dc2626;
+}
+
+body {
+    background-color: var(--background);
+    color: #111827;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    margin: 0;
+}
+
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+/* Navbar Commune */
+.navbar {
+    background: linear-gradient(to right, #4f46e5, #9333ea);
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding: 0.75rem 0;
+    box-shadow: var(--shadow);
+}
+
+.nav-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Boutons Réutilisables */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: var(--radius);
+    font-weight: 500;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-nav { background: rgba(255, 255, 255, 0.1); color: white; }
+.btn-nav:hover { background: rgba(255, 255, 255, 0.2); }
+
+.btn-primary { background: var(--primary); color: var(--primary-foreground); }
+.btn-primary:hover { opacity: 0.9; }
+
+/* Menu Déroulant Profil */
+.group { position: relative; }
+.dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    width: 200px;
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow);
+    display: none;
+    padding: 0.5rem 0;
+}
+.group:hover .dropdown-menu { display: block; }
+.dropdown-item {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: #374151;
+    text-decoration: none;
+}
+.dropdown-item:hover { background: #f3f4f6; }
+
+/* --- Forms (Général) --- */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box; /* Pour que le padding ne dépasse pas */
+}
+
+.input:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}

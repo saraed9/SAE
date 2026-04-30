@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Inscription</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+        <style>
+            /* Petit ajout spécifique pour centrer le formulaire proprement */
+            .register-container {
+                min-height: calc(100vh - 80px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem;
+                background-color: #f9fafb;
+            }
+            .register-card {
+                background: white;
+                padding: 2.5rem;
+                border-radius: var(--radius);
+                box-shadow: var(--shadow);
+                width: 100%;
+                max-width: 450px;
+            }
+            .password-hint {
+                font-size: 0.75rem;
+                color: #6b7280;
+                margin-top: 0.5rem;
+                line-height: 1.4;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Barre de navigation (main.css) -->
+        <nav class="navbar">
+            <div class="container nav-content">
+                <a href="/" class="btn btn-nav">🏠 Page d'accueil</a>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <a href="/panier" class="btn btn-nav">🛒 Panier</a>
+                    <div class="group">
+                        <button class="btn btn-nav"><span>👤</span></button>
+                        <div class="dropdown-menu">
+                            <a href="/login" class="dropdown-item">🔑 Se connecter</a>
+                            <a href="/register" class="dropdown-item">📝 S'inscrire</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="register-container">
+            <div class="register-card">
+                <a href="/" style="text-decoration: none; color: #6b7280; font-size: 0.9rem; display: block; margin-bottom: 1.5rem;">
+                    ← Retour à l'accueil
+                </a>
+
+                <h2 style="margin-bottom: 2rem;">Créer un compte</h2>
+
+                <form action="/register" method="POST">
+                    <div class="form-group">
+                        <label class="label">Adresse Email</label>
+                        <input type="email" name="email" placeholder="exemple@mail.com" class="input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label">Mot de passe</label>
+                        <input type="password" name="password" placeholder="••••••••" class="input" required>
+                        <div class="password-hint">
+                            💡 Doit contenir au moins 12 caractères, une majuscule, un chiffre et un caractère spécial.
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 1rem; padding: 0.8rem;">
+                        S'inscrire
+                    </button>
+
+                    <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: #4b5563;">
+                        Déjà un compte ? <a href="/login" style="color: #4f46e5; font-weight: 600;">Se connecter</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <title>Confirmation de commande</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='confirmation.css') }}">
+    </head>
+    <body>
+        <!-- Barre de navigation (utilise main.css) -->
+        <nav class="navbar">
+            <div class="container nav-content">
+                <a href="/" class="btn btn-nav">
+                    <span>🏠</span><span class="font-medium">Page d'accueil</span>
+                </a>
+
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <a href="/panier" class="btn btn-nav">
+                        <span>🛒</span><span class="font-medium">Panier</span>
+                    </a>
+
+                    <div class="group">
+                        <button class="btn btn-nav">
+                            <span>👤</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            {% if not session.get('user_email') %}
+                                <a href="/login" class="dropdown-item">🔑 Se connecter</a>
+                                <a href="/register" class="dropdown-item">📝 S'inscrire</a>
+                            {% else %}
+                                <a href="/profil" class="dropdown-item">👤 Mon Compte</a>
+                                <div style="border-top: 1px solid #eee; margin: 0.5rem 0;"></div>
+                                <a href="/logout" class="dropdown-item" style="color: var(--destructive);">🚪 Déconnexion</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Contenu de la Page (utilise confirmation.css) -->
+        <div class="confirmation-wrapper">
+            
+            <!-- Message de succès -->
+            <div class="success-card">
+                <h2 style="font-size: 1.8rem; margin: 0;">Merci pour votre commande n°{{ order.number }} !</h2>
+            </div>
+
+            <!-- Facture -->
+            <div class="invoice-box">
+                <h3 class="invoice-header">FACTURE</h3>
+                
+                {% for ticket in order.tickets %}
+                <div class="item-row">
+                    <div class="item-details">
+                        <h5>{{ ticket.title }}</h5>
+                        <p>{{ ticket.date }} - {{ ticket.location }}</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <p style="margin: 0; font-weight: 600;">Qté: {{ ticket.quantity }}</p>
+                        <p style="margin: 0; font-weight: bold; color: #4f46e5;">{{ ticket.price }}€</p>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Totaux -->
+                <div class="grand-total">
+                    Total : {{ total }}€
+                </div>
+
+                <!-- Boutons d'action -->
+                <div class="action-btns">
+                    <button class="btn btn-primary" style="flex: 1; justify-content: center;">Télécharger PDF</button>
+                    <a href="/" class="btn" style="flex: 1; justify-content: center; border: 1px solid var(--border);">Retour à l'accueil</a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

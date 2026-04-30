@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, flash
+from flask import Flask, render_template, session, redirect, url_for
 from datetime import datetime
 
 app = Flask(__name__)
@@ -35,7 +35,7 @@ def index():
     ]
     return render_template('accueil.html', spectacles=events)
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['POST'])
 def login():
     if request.method == 'POST':
         # On récupère ce que l'utilisateur a tapé
@@ -49,8 +49,12 @@ def login():
     
     return render_template('login.html')
 
+@app.route('/logout')
+def logout():
+    session.pop('user_email', None) # On déconnecte l'utilisateur
+    return redirect('/')
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['POST'])
 def register():
     if request.method == 'POST':
         # Récupération des données du formulaire
@@ -71,18 +75,14 @@ def register():
 
     return render_template('registration.html')
 
-@app.route('/logout')
-def logout():
-    session.pop('user_email', None) # On déconnecte l'utilisateur
-    return redirect('/')
+from flask import session
 
 @app.route('/profil')
-def profil():
+def profile():
     # 1. Vérifier si l'utilisateur est connecté
-    """
     if 'user_id' not in session:
         return redirect('/login')
-    """
+
     # 2. Récupérer les infos de l'utilisateur
     # cursor.execute("SELECT nom, prenom, email FROM utilisateurs WHERE id = %s", (session['user_id'],))
     user_info = {"email": "jean.dupont@email.com"}
@@ -114,12 +114,6 @@ def afficher_panier():
     cart_items = []
     total = 0
     for id_sp, quantite in session['panier'].items():
-        info = tous_les_spectacles.get(id_sp)
-        if info is None:
-            # Si le spectacle n'existe pas, on passe au suivant ou on gère l'erreur
-            print(f"Erreur : le spectacle {id_sp} est introuvable")
-            continue
-        
         info = tous_les_spectacles[id_sp]
         sous_total = info['price'] * quantite
         total += sous_total
@@ -134,30 +128,24 @@ def afficher_panier():
         })
 
     return render_template('panier.html', items=cart_items, total=total)
-    
-@app.route('/paiement', methods=['GET', 'POST']) # Ajoute GET ici !
-def paiement():
-    # Ici on traite le formulaire de carte bancaire
-    """
+
+@app.route('/process_payment', methods=['POST'])
+def process_payment():
     if 'user_email' not in session:
         flash("Vous devez être connecté pour payer", "error")
         return redirect('/login')
-    """
-    if request.method == 'POST':
-        # On récupère les infos (pour la simulation)
-        card_num = request.form.get('card_number')
-        
-        # 1. ICI : Tu ferais ton "INSERT INTO commandes ..." dans MySQL
-        # 2. ICI : Tu récupères l'ID de la commande générée
-        
-        # 3. On vide le panier après le succès
-        session.pop('panier', None)
-        
-        flash("Paiement accepté ! Votre commande est en route.", "success")
-        return redirect('/confirmation')
+
+    # On récupère les infos (pour la simulation)
+    card_num = request.form.get('card_number')
     
-    # Si c'est en GET, on affiche juste la page
-    return render_template('paiement.html')
+    # 1. ICI : Tu ferais ton "INSERT INTO commandes ..." dans MySQL
+    # 2. ICI : Tu récupères l'ID de la commande générée
+    
+    # 3. On vide le panier après le succès
+    session.pop('cart', None)
+    
+    flash("Paiement accepté ! Votre commande est en route.", "success")
+    return redirect('/confirmation_success')
 
 @app.route('/confirmation')
 def confirmation():
@@ -170,10 +158,14 @@ def confirmation():
             {"title": "Le Roi Lion", "date": "15/10/2024", "location": "Zénith de Paris", "quantity": 1, "price": 45},
             {"title": "Stromae en Concert", "date": "22/10/2024", "location": "AccorHotels Arena", "quantity": 2, "price": 90}
         ],
+        "fees": 5
     }
-    total = sum(t['price'] for t in order_data['tickets'])
     
-    return render_template('confirmation.html', order=order_data, total=total)
+    # Calcul du total
+    subtotal = sum(t['price'] for t in order_data['tickets'])
+    total = subtotal + order_data['fees']
+    
+    return render_template('confirmation.html', order=order_data, subtotal=subtotal, total=total)
 
 if __name__ == '__main__':
     app.run(debug=True)

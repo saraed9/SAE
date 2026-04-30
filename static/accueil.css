@@ -1,0 +1,58 @@
+/* Hero Banner */
+.hero {
+    background: linear-gradient(to right, #4f46e5, #9333ea);
+    color: white;
+    padding: 4rem 0;
+    text-align: center;
+}
+
+.hero h2 { font-size: 2.5rem; margin: 0; }
+
+/* Barre de recherche flottante */
+.search-container {
+    background: white;
+    padding: 1rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    display: flex;
+    gap: 1rem;
+    margin-top: -2rem; /* Effet de chevauchement */
+}
+
+.search-container input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+}
+
+/* Grille et Cartes */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 4rem 0;
+}
+
+.card {
+    background: white;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    transition: transform 0.2s;
+}
+
+.card:hover { transform: translateY(-5px); }
+
+.card img { width: 100%; height: 200px; object-fit: cover; }
+
+.card-body { padding: 1.5rem; }
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.price { font-size: 1.2rem; font-weight: bold; color: #4f46e5; }

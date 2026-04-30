@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Mon Profil</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='profil.css') }}">
+    </head>
+    <body>
+        <!-- Barre de navigation (main.css) -->
+        <nav class="navbar">
+            <div class="container nav-content">
+                <a href="/" class="btn btn-nav">🏠 Page d'accueil</a>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <a href="/panier" class="btn btn-nav">🛒 Panier</a>
+                    <div class="group">
+                        <button class="btn btn-nav"><span>👤</span></button>
+                        <div class="dropdown-menu">
+                            {% if not session.get('user_email') %}
+                                <a href="/login" class="dropdown-item">🔑 Se connecter</a>
+                                <a href="/register" class="dropdown-item">📝 S'inscrire</a>
+                            {% else %}
+                                <a href="/profil" class="dropdown-item">👤 Mon Compte</a>
+                                <div style="border-top: 1px solid #eee; margin: 0.5rem 0;"></div>
+                                <a href="/logout" class="dropdown-item" style="color: var(--destructive);">🚪 Déconnexion</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+            <h2 style="margin-top: 2rem; font-size: 2rem;">Mon Compte</h2>
+
+            <div class="profile-grid">
+                <!-- Sidebar : Infos -->
+                <aside class="space-y-6">
+                    <div class="profile-card" style="text-align: center;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">👤</div>
+                        <p style="color: #4f46e5; font-weight: 500;">{{ user.email }}</p>
+                    </div>
+
+                    <div class="profile-card">
+                        <h4 style="margin-top: 0;">Statistiques</h4>
+                        <div class="stat-item">
+                            <span>Commandes</span>
+                            <span style="font-weight: bold; color: #4f46e5;">{{ orders|length }}</span>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Main : Historique -->
+                <main class="profile-card">
+                    <h3 style="margin-top: 0; margin-bottom: 1.5rem;">Historique des commandes</h3>
+                    
+                    <div class="orders-list">
+                        {% for order in orders %}
+                        <div class="order-card">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div>
+                                    <h4 style="margin: 0;">Commande #{{ order.id }}</h4>
+                                    <p style="font-size: 0.875rem; color: #6b7280;">{{ order.date }}</p>
+                                </div>
+                                <div style="font-size: 1.25rem; font-weight: bold; color: #4f46e5;">{{ order.total }}€</div>
+                            </div>
+                            
+                            <div style="margin: 1rem 0;">
+                                <span class="badge-status">{{ order.status }}</span>
+                            </div>
+
+                            <div class="order-actions">
+                                <button class="btn btn-primary" style="font-size: 0.75rem; padding: 0.5rem;">Détails</button>
+                                <button class="btn" style="font-size: 0.75rem; padding: 0.5rem; border: 1px solid var(--border);">Billets</button>
+                                <button class="btn" style="font-size: 0.75rem; padding: 0.5rem; border: 1px solid var(--border);">Facture</button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </main>
+            </div>
+        </div>
+    </body>
+</html>
