@@ -1,57 +1,59 @@
 <!DOCTYPE html>
 <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <title>Spectra - Billetterie</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='accueil.css') }}">
-    </head>
-    <body>
-        <!-- Barre de navigation -->
-        <nav class="navbar">
-            <div class="container nav-content">
-                <a href="/" class="btn btn-nav">🏠 Accueil</a>
-                <div style="display: flex; gap: 1rem;">
-                    <a href="/panier" class="btn btn-nav">🛒 Panier</a>
+<head>
+    <meta charset="UTF-8">
+    <title>Spectra - Billetterie</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='accueil.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="/" class="btn btn-nav">🏠 Accueil</a>
+            <div style="display: flex; gap: 1rem;">
+                <a href="/panier" class="btn btn-nav">🛒 Panier</a>
+                {% if session.get('user_id') %}
+                    <a href="/profil" class="btn btn-nav">👤 Mon profil</a>
+                    <a href="/logout" class="btn btn-nav">🚪 Déconnexion</a>
+                {% else %}
                     <a href="/login" class="btn btn-nav">👤 Connexion</a>
-                </div>
-            </div>
-        </nav>
-        
-        <!-- Hero Section -->
-        <section class="hero">
-            <div class="container">
-                <h2>Découvrez les meilleurs spectacles</h2>
-                <p>Réservez vos places en quelques clics</p>
-            </div>
-        </section>
-
-        <!-- Barre de recherche flottante -->
-        <div class="container">
-            <div class="search-container">
-                <input type="text" placeholder="Rechercher un spectacle...">
-                <button class="btn btn-primary">Rechercher</button>
+                {% endif %}
             </div>
         </div>
+    </nav>
 
-        <!-- Spectacles -->
-        <main class="container">
-            <div class="grid">
-                {% for event in spectacles %}
-                <div class="card">
-                    <img src="{{ event.image }}" alt="{{ event.title }}">
-                    <div class="card-body">
-                        <h4 style="margin: 0 0 0.5rem 0;">{{ event.title }}</h4>
-                        <p style="color: #4b5563; font-size: 0.875rem;">📅 {{ event.date }}</p>
-                        <p style="color: #4b5563; font-size: 0.875rem;">📍 {{ event.location }}</p>
-                        <div class="card-footer">
-                            <span class="price">{{ event.price }} €</span>
-                            <button class="btn btn-primary">Réserver</button>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </main>
-    </body>
+    <section class="hero">
+        <div class="container">
+            <h2>Découvrez les meilleurs spectacles</h2>
+            <p>Réservez vos places en quelques clics</p>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="search-container">
+            <input type="text" placeholder="Rechercher un spectacle...">
+            <button class="btn btn-primary">Rechercher</button>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="grid">
+            {% for grand in spectacles %}
+<a href="/spectacle/{{ grand.id }}" style="text-decoration: none; color: inherit;">
+    <div class="card" style="cursor: pointer;">
+        {% if grand.image %}
+            <img src="{{ grand.image }}" alt="{{ grand.nom }}">
+        {% else %}
+            <img src="https://via.placeholder.com/400x200?text=Pas+d'image" alt="Pas d'image">
+        {% endif %}
+        <div style="padding: 1rem;">
+            <h4 style="margin: 0 0 0.5rem 0; font-size: 1.2rem; font-weight: bold; color: #1f2937;">{{ grand.nom }}</h4>
+            <p style="font-size: 0.875rem; color: #6b7280; line-height: 1.5;">{{ grand.description }}</p>
+        </div>
+    </div>
+</a>
+{% endfor %}
+        </div>
+    </main>
+</body>
 </html>
