@@ -14,7 +14,7 @@
 .payment-card {
     background: white;
     border-radius: var(--radius);
-    shadow: var(--shadow);
+    box-shadow: var(--shadow);
     max-width: 450px;
     width: 100%;
     overflow: hidden;
