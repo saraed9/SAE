@@ -1,88 +1,78 @@
-import datetime
+from datetime import datetime
 
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 
+from models import *
+
 app = Flask(__name__)
 
 # Connexion à PostgreSQL
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:141039@localhost/tickets_spectacle'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Postgres113@localhost:5432/Spectra'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'cle_secrete_a_changer'
 
-db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
+db.init_app(app)
+bcrypt.init_app(app)
+
+with app.app_context():
+    db.create_all()
+    print("Connexion OK")
 
 @app.route('/')
 def index():
-    # C'est ici que tu récupéreras plus tard les données de ta BDD MySQL
-    events = [
-        {
-            "id": 1,
-            "title": "Le Roi Lion",
-            "date": "15/10/2024",
-            "price": 45,
-            "location": "Zénith de Paris",
-            "image": "https://images.unsplash.com/photo-1762417420653-2517eaa74468?w=400"
-        },
-        {
-            "id": 2,
-            "title": "Stromae en Concert",
-            "date": "22/10/2024",
-            "price": 65,
-            "location": "AccorHotels Arena",
-            "image": "https://images.unsplash.com/photo-1566735355835-bddb43dc3f63?w=400"
-        },
-        {
-            "id": 3,
-            "title": "Orelsan Live",
-            "date": "12/11/2024",
-            "price": 50,
-            "location": "Stade de France",
-            "image": "https://images.unsplash.com/photo-1566735355837-2269c24e644e?w=400"
-        }
-    ]
+    events = GrandSpectacle.lister_tous()
     return render_template('accueil.html', spectacles=events)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    
     if request.method == 'POST':
-        # On récupère ce que l'utilisateur a tapé
         email = request.form.get('email')
         password = request.form.get('password')
         
         # ICI : Tu ajouteras plus tard la vérification dans ta base MySQL
+        user = User.check_login(email, password)
+        if user is not None:
+            session['user_id'] = user.id
+            session['email'] = user.email
+            return redirect('/')
+        else:
+            flash("Email ou mot de passe incorrect", "error")
+        
         print(f"Tentative de connexion de : {email}")
         
-        return redirect('/') # On redirige vers l'accueil après le login
+        return redirect('/login')
     
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        # Récupération des données du formulaire
         email = request.form.get('email')
         password = request.form.get('password')
-        
-        # Validation simple (côté serveur)
+
         if not email or not password:
             return "Erreur : Tous les champs sont obligatoires", 400
 
-        # ICI : Tu feras ta requête SQL
-        # Ex: cursor.execute("INSERT INTO utilisateurs (nom, prenom, email, password) VALUES (%s, %s, %s, %s)", ...)
-        
+        user = User.register(email, password)
+        if user is None:
+            print("Cet email est déjà utilisé", "error")
+            return redirect('/register') 
+        session['user_id'] = user.id
+        session['email'] = user.email
+
         print(f"Inscription réussie pour : {email}")
         
-        # Une fois inscrit, on l'envoie vers la page de connexion
-        return redirect('/login')
+        return redirect('/')
 
     return render_template('registration.html')
 
 @app.route('/logout')
 def logout():
-    session.pop('user_email', None) # On déconnecte l'utilisateur
+    session.pop('user_id', None)
+    session.pop('email', None)
     return redirect('/')
 
 @app.route('/profil')
@@ -123,12 +113,7 @@ def afficher_panier():
     cart_items = []
     total = 0
     for id_sp, quantite in session['panier'].items():
-        info = tous_les_spectacles.get(id_sp)
-        if info is None:
-            # Si le spectacle n'existe pas, on passe au suivant ou on gère l'erreur
-            print(f"Erreur : le spectacle {id_sp} est introuvable")
-            continue
-        
+        id_sp = int(id_sp)
         info = tous_les_spectacles[id_sp]
         sous_total = info['price'] * quantite
         total += sous_total
@@ -185,4 +170,4 @@ def confirmation():
     return render_template('confirmation.html', order=order_data, total=total)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)

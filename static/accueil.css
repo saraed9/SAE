@@ -55,4 +55,23 @@
     margin-top: 1rem;
 }
 
-.price { font-size: 1.2rem; font-weight: bold; color: #4f46e5; }
+/* Rend toute la carte cliquable sans style de lien */
+.card-link {
+    display: block;
+    text-decoration: none;
+    color: black;
+}
+
+.card-link:visited,
+.card-link:hover,
+.card-link:active {
+    color: black;
+    text-decoration: none;
+}
+
+/* Force les textes internes à rester normaux */
+.card h4,
+.card p {
+    color: #111827;
+    text-decoration: none;
+}

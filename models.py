@@ -1,35 +1,44 @@
-import bcrypt
+from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
-from tomlkit import datetime
+from datetime import datetime
+
+import re
 
 
 db = SQLAlchemy()
+bcrypt = Bcrypt()
+
 
 class User(db.Model):
+    __tablename__ = 'users'
+
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    _password = db.Column(db.String(120), nullable=False)
+    mdps = db.Column(db.String(120), nullable=False)
 
-    def __init__(self, email, username, password):
+    def __init__(self, email, password):
         self.email = email
-        self.username = username
-        self.set_password(password)
-
-    def save(self):
-        """Enregistre l'utilisateur dans la base de données"""
-        db.session.add(self)
-        db.session.commit()
-
-    def set_password(self, pwd):
-        """Hash le mot de passe et le stocke dans l'instance de l'utilisateur"""
-        self._password = bcrypt.generate_password_hash(pwd).decode('utf-8')
+        self.mdps = password
 
     @staticmethod
-    def login(email, pwd):
+    def register(email, password):
+        if User.query.filter_by(email=email).first():
+            return None  # L'email existe déjà
+        
+        pattern = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$'
+        if not re.match(pattern, password):
+            return None  # Le mot de passe ne respecte pas les critères de sécurité
+        
+        user = User(email=email, password=bcrypt.generate_password_hash(password).decode('utf-8'))
+        db.session.add(user)
+        db.session.commit()
+        return user
+
+    @staticmethod
+    def check_login(email, pwd):
         """Retourne l'utilisateur s'il existe et que le mot de passe est correct, sinon None"""
         user = User.query.filter_by(email=email).first()
-        if user and bcrypt.check_password_hash(user._password, pwd):
+        if user and bcrypt.check_password_hash(user.mdps, pwd):
             return user
         return None
 
@@ -45,8 +54,6 @@ class Commande(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     quantite = db.Column(db.Integer, nullable=False)
     montant_total = db.Column(db.Numeric(8, 2), nullable=False)
-    statut = db.Column(db.String(20), default='confirmee', nullable=False)
-    passe_le = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     # Relations pour faciliter le code
     client = db.relationship('User', backref='mes_commandes')
@@ -120,22 +127,18 @@ class GrandSpectacle(db.Model):
     __tablename__ = 'grand_spectacle'
     id = db.Column(db.Integer, primary_key=True)
     nom = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(1000), nullable=False)
+    image = db.Column(db.String(500))  # URL de l'image
+
     
     # Relation : permet de faire mon_grand_spectacle.representations
     representations = db.relationship('Spectacle', backref='parent', lazy=True)
-
-    @staticmethod
-    def ajouter_au_catalogue(nom_oeuvre):
-        """Ajoute une nouvelle œuvre au catalogue (ex: 'Starmania')."""
-        nouvelle_oeuvre = GrandSpectacle(nom=nom_oeuvre)
-        db.session.add(nouvelle_oeuvre)
-        db.session.commit()
-        return nouvelle_oeuvre
-
-    def lister_dates(self):
-        """Retourne toutes les dates prévues pour ce spectacle précis."""
-        return [repr.date for repr in self.representations]
     
+    @staticmethod
+    def lister_tous():
+        return GrandSpectacle.query.all()
+
+
 class Spectacle(db.Model):
     __tablename__ = 'spectacles'
     id = db.Column(db.Integer, primary_key=True)
@@ -165,7 +168,7 @@ class Avis(db.Model):
     __tablename__ = 'avis'
     id = db.Column(db.Integer, primary_key=True)
     utilisateur_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    spectacle_id = db.Column(db.Integer, db.ForeignKey('spectacles.id'), nullable=False)
+    grand_spectacle_id = db.Column(db.Integer, db.ForeignKey('grand_spectacle.id'), nullable=False)
     commentaire = db.Column(db.String(900))
 
     def publier(self):
