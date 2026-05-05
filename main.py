@@ -1,4 +1,6 @@
-from flask import Flask, render_template
+import datetime
+
+from flask import Flask, flash, redirect, render_template, request, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 
@@ -58,7 +60,6 @@ def login():
             return redirect('/')
         else:
             return "Identifiant incorrect"
-
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
