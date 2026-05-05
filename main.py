@@ -49,13 +49,15 @@ def login():
         # On récupère ce que l'utilisateur a tapé
         email = request.form.get('email')
         password = request.form.get('password')
-        
-        # ICI : Tu ajouteras plus tard la vérification dans ta base MySQL
-        print(f"Tentative de connexion de : {email}")
-        
-        return redirect('/') # On redirige vers l'accueil après le login
-    
-    return render_template('login.html')
+
+        #on recupere l'utilisateur depuis la BDD:
+        user = Users.query.filter_by(email=email).first()
+      
+        if user and bcrypt.check_password_hash(user.mdps, password):
+            session['user_id'] = user.id
+            return redirect('/')
+        else:
+            return "Identifiant incorrect"
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -65,12 +67,16 @@ def register():
         email = request.form.get('email')
         password = request.form.get('password')
         
-        # Validation simple (côté serveur)
         if not email or not password:
             return "Erreur : Tous les champs sont obligatoires", 400
 
-        # ICI : Tu feras ta requête SQL
-        # Ex: cursor.execute("INSERT INTO utilisateurs (nom, prenom, email, password) VALUES (%s, %s, %s, %s)", ...)
+        #hachage du mot de passe 
+        mdps_hash=bcrypt.generate_password_hash(password).decode('utf-8')
+        
+        nouveau_user=Users(email=email, mdps=mdps_hash)
+        db.session.add(nouveau_user)
+        db.session.commit()
+        
         
         print(f"Inscription réussie pour : {email}")
         
@@ -155,10 +161,26 @@ def paiement():
         # On récupère les infos (pour la simulation)
         card_num = request.form.get('card_number')
         
-        # 1. ICI : Tu ferais ton "INSERT INTO commandes ..." dans MySQL
-        # 2. ICI : Tu récupères l'ID de la commande générée
+        #recuperation du panier
+        panier = session.get('panier', {})
+
+        #etape 2:calcuel du total
+        total =0 
+        for id_sp, quantite in panier.items():
+            spectacle=Spectacles.query.get(id_sp)
+            if spectacle:
+                total += spectacle.price * quantite
         
-        # 3. On vide le panier après le succès
+        #enregistrement de la commande dans la BDD
+        nouvell_commande= Commandes(
+            user_id=session['user_id'],
+            montant_total=total,
+            statut='confirme'
+        )
+        db.session.add(nouvelle_commande)
+        db.session.commit()
+
+        # On vide le panier après le succès
         session.pop('panier', None)
         
         flash("Paiement accepté ! Votre commande est en route.", "success")
@@ -185,3 +207,4 @@ def confirmation():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
