@@ -12,22 +12,21 @@
         <!-- Barre de navigation (main.css) -->
         <nav class="navbar">
             <div class="container nav-content">
-                <a href="/" class="btn btn-nav">
-                    <span>🏠</span><span class="font-medium">Page d'accueil</span>
-                </a>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <a href="/panier" class="btn btn-nav"><span>🛒</span> Panier</a>
+                <a href="/" class="btn btn-nav">🏠 Accueil</a>
+                <div style="display: flex; gap: 1rem;">
+                    {% if session.get('user_id') %}
+                    <a href="/panier" class="btn btn-nav">🛒 Panier</a>
+                    {% endif %}
                     <div class="group">
                         <button class="btn btn-nav"><span>👤</span></button>
                         <div class="dropdown-menu">
-                            {% if not session.get('user_email') %}
-                                <a href="/login" class="dropdown-item">🔑 Se connecter</a>
-                                <a href="/register" class="dropdown-item">📝 S'inscrire</a>
-                            {% else %}
-                                <a href="/profil" class="dropdown-item">👤 Mon Compte</a>
-                                <div style="border-top: 1px solid #eee; margin: 0.5rem 0;"></div>
-                                <a href="/logout" class="dropdown-item" style="color: var(--destructive);">🚪 Déconnexion</a>
-                            {% endif %}
+                        {% if session.get('user_id') %}
+                            <a href="/profil" class="dropdown-item">👤 Profil</a>
+                            <a href="/logout" class="dropdown-item">🚪 Déconnexion</a>
+                        {% else %}
+                            <a href="/login" class="dropdown-item">👤 Connexion</a>
+                            <a href="/register" class="dropdown-item">📝 Inscription</a>
+                        {% endif %}
                         </div>
                     </div>
                 </div>

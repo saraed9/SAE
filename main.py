@@ -1,6 +1,10 @@
-import datetime
+from datetime import datetime
+
 from flask import Flask, flash, redirect, render_template, request, session
-from extensions import db, bcrypt
+from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
+
+from models import *
 
 app = Flask(__name__)
 
@@ -11,11 +15,13 @@ app.config['SECRET_KEY'] = 'cle_secrete_a_changer'
 db.init_app(app)
 bcrypt.init_app(app)
 
-from models import User, Spectacle, Commande, Ticket, Avis, GrandSpectacle
+with app.app_context():
+    db.create_all()
+    print("Connexion OK")
 
 @app.route('/')
 def index():
-    grands = GrandSpectacle.query.all()
+    grands = GrandSpectacle.lister_tous()
     return render_template('accueil.html', spectacles=grands)
 
 @app.route('/spectacle/<int:id>')
@@ -24,18 +30,29 @@ def detail_spectacle(id):
     representations = Spectacle.query.filter_by(grand_spectacle_id=id).all()
     avis = Avis.query.filter_by(grand_spectacle_id=id).all()
     return render_template('detail_spectacle.html', grand=grand, representations=representations, avis=avis)
+    events = GrandSpectacle.lister_tous()
+    return render_template('accueil.html', spectacles=events)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
-        user = User.login(email, password)
-        if user:
+        
+        # ICI : Tu ajouteras plus tard la vérification dans ta base MySQL
+        user = User.check_login(email, password)
+        if user is not None:
             session['user_id'] = user.id
+            session['email'] = user.email
             return redirect('/')
         else:
-            return "Identifiant incorrect"
+            flash("Email ou mot de passe incorrect", "error")
+        
+        print(f"Tentative de connexion de : {email}")
+        
+        return redirect('/login')
+    
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -43,20 +60,27 @@ def register():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
-        user_name = request.form.get('user_name')
 
-        if not email or not password or not user_name:
+        if not email or not password:
             return "Erreur : Tous les champs sont obligatoires", 400
 
-        nouveau_user = User(email=email, user_name=user_name, password=password)
-        nouveau_user.save()
-        return redirect('/login')
+        user = User.register(email, password)
+        if user is None:
+            print("Cet email est déjà utilisé", "error")
+            return redirect('/register') 
+        session['user_id'] = user.id
+        session['email'] = user.email
+
+        print(f"Inscription réussie pour : {email}")
+        
+        return redirect('/')
 
     return render_template('registration.html')
 
 @app.route('/logout')
 def logout():
     session.pop('user_id', None)
+    session.pop('email', None)
     return redirect('/')
 
 @app.route('/profil')
@@ -148,4 +172,4 @@ def confirmation():
     return render_template('confirmation.html', order=order_data, total=total)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
