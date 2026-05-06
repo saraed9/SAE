@@ -1,7 +1,14 @@
 from flask import Flask, flash, redirect, render_template, request, session
 from datetime import datetime
-from models import *
 import os
+
+from models.extensions import db, bcrypt
+from models.user import User
+from models.spectacle import GrandSpectacle, Spectacle
+from models.avis import Avis
+from models.commande import Commande
+from models.ticket import Ticket
+
 
 # Configuration de l'application Flask
 app = Flask(__name__)
@@ -60,17 +67,20 @@ def register():
         email = request.form.get('email')
         password = request.form.get('password')
 
-        user = User.register(email, password)
-        if user is None:
-            flash("Cet email est déjà utilisé", "error")
-            return redirect('/register')
+        result = User.register(email, password)
+        if "user" in result:
+            user = result["user"]
+            session['user_id'] = user.id
+            session['email'] = user.email
+            session['panier'] = {}
+            flash("Inscription réussie !", "success")
+            return redirect('/')
         
-        session['user_id'] = user.id
-        session['email'] = user.email
-        session['panier'] = {}
-        
-        flash("Inscription réussie !", "success")
-        return redirect('/')
+        elif result["error"] == "email_existe":
+            flash("Cet email est déjà utilisé", "info")
+        elif result["error"] == "mdp_faible":
+            flash("Le mot de passe est trop faible", "error")
+        return redirect('/register')
 
     return render_template('registration.html')
 
