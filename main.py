@@ -1,58 +1,57 @@
-from datetime import datetime
-
 from flask import Flask, flash, redirect, render_template, request, session
-from flask_sqlalchemy import SQLAlchemy
-from flask_bcrypt import Bcrypt
-
+from datetime import datetime
 from models import *
+import os
 
+# Configuration de l'application Flask
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:141039@localhost/tickets_spectacle'
+# Configuration de la base de données
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Postgres113@localhost/Spectra'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'cle_secrete_a_changer'
+app.config['SECRET_KEY'] = os.urandom(32).hex()
 
+# Initialisation de la base de données et de Bcrypt
 db.init_app(app)
 bcrypt.init_app(app)
 
+# Création de la base de données
 with app.app_context():
     db.create_all()
     print("Connexion OK")
 
+# Routes pour les pages principales
 @app.route('/')
 def index():
     grands = GrandSpectacle.lister_tous()
     return render_template('accueil.html', spectacles=grands)
 
-@app.route('/spectacle/<int:id>')
-def detail_spectacle(id):
-    grand = GrandSpectacle.query.get_or_404(id)
-    representations = Spectacle.query.filter_by(grand_spectacle_id=id).all()
-    avis = Avis.query.filter_by(grand_spectacle_id=id).all()
-    return render_template('detail_spectacle.html', grand=grand, representations=representations, avis=avis)
-    events = GrandSpectacle.lister_tous()
-    return render_template('accueil.html', spectacles=events)
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
+
+        # Contrôle de sécurité : limiter les tentatives de connexion
+        if 'login_attempts' not in session:
+            session['login_attempts'] = 0
+        if session['login_attempts'] > 5:
+            return "Trop de tentatives", 429
         
-        # ICI : Tu ajouteras plus tard la vérification dans ta base MySQL
+        # Authentification
         user = User.check_login(email, password)
         if user is not None:
+            session.clear()  # Réinitialiser les tentatives après une connexion réussie
             session['user_id'] = user.id
             session['email'] = user.email
+            session['panier'] = {}
             return redirect('/')
-        else:
-            flash("Email ou mot de passe incorrect", "error")
         
-        print(f"Tentative de connexion de : {email}")
-        
+        session['login_attempts'] += 1
+        flash("Email ou mot de passe incorrect", "error")        
         return redirect('/login')
     
+    session['login_attempts'] = 0  # Réinitialiser les tentatives à l'affichage du formulaire
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -61,38 +60,48 @@ def register():
         email = request.form.get('email')
         password = request.form.get('password')
 
-        if not email or not password:
-            return "Erreur : Tous les champs sont obligatoires", 400
-
         user = User.register(email, password)
         if user is None:
-            print("Cet email est déjà utilisé", "error")
-            return redirect('/register') 
+            flash("Cet email est déjà utilisé", "error")
+            return redirect('/register')
+        
         session['user_id'] = user.id
         session['email'] = user.email
-
-        print(f"Inscription réussie pour : {email}")
+        session['panier'] = {}
         
+        flash("Inscription réussie !", "success")
         return redirect('/')
 
     return render_template('registration.html')
 
 @app.route('/logout')
 def logout():
-    session.pop('user_id', None)
-    session.pop('email', None)
+    session.clear()
     return redirect('/')
 
 @app.route('/profil')
 def profil():
     if 'user_id' not in session:
+        flash("Vous devez être connecté pour voir votre profil", "info")
         return redirect('/login')
+    
     user = User.query.get(session['user_id'])
     commandes = Commande.get_by_user(session['user_id'])
     return render_template('profil.html', user=user, orders=commandes)
 
+@app.route('/spectacle/<int:id>')
+def detail_spectacle(id):
+    grand = GrandSpectacle.query.get_or_404(id)
+    representations = Spectacle.query.filter_by(grand_spectacle_id=id).all()
+    avis = Avis.query.filter_by(grand_spectacle_id=id).all()
+    return render_template('detail_spectacle.html', grand=grand, representations=representations, avis=avis)
+
 @app.route('/panier')
-def afficher_panier():
+def panier():
+    if 'user_id' not in session:
+        flash("Vous devez être connecté pour accéder à votre panier", "info")
+        return redirect('/login')
+    
     if 'panier' not in session:
         session['panier'] = {}
 
@@ -118,9 +127,12 @@ def afficher_panier():
 @app.route('/panier/ajouter/<int:spectacle_id>')
 def ajouter_panier(spectacle_id):
     if 'user_id' not in session:
+        flash("Vous devez être connecté pour ajouter un spectacle à votre panier", "info")
         return redirect('/login')
+    
     if 'panier' not in session:
         session['panier'] = {}
+
     panier = session['panier']
     cle = str(spectacle_id)
     if cle in panier:
@@ -134,7 +146,7 @@ def ajouter_panier(spectacle_id):
 @app.route('/paiement', methods=['GET', 'POST'])
 def paiement():
     if 'user_id' not in session:
-        flash("Vous devez être connecté pour payer", "error")
+        flash("Vous devez être connecté pour payer", "info")
         return redirect('/login')
 
     if request.method == 'POST':
@@ -155,21 +167,22 @@ def paiement():
         )
         nouvelle_commande.save()
         session.pop('panier', None)
-        flash("Paiement accepté ! Votre commande est en route.", "success")
         return redirect('/confirmation')
 
     return render_template('paiement.html')
 
 @app.route('/confirmation')
 def confirmation():
-    order_data = {
-        "number": "12345",
-        "date": datetime.datetime.now().strftime("%d/%m/%Y"),
-        "payment": "Carte Visa ****1234",
-        "tickets": [],
-    }
-    total = 0
-    return render_template('confirmation.html', order=order_data, total=total)
+    if 'user_id' not in session:
+        flash("Vous devez être connecté", "info")
+        return redirect('/login')
+    
+    order = Commande.query.filter_by(user_id=session['user_id']).order_by(Commande.id.desc()).first()
+    if not order:
+        flash("Aucune commande trouvée", "error")
+        return redirect('/')
+    
+    return render_template('confirmation.html', order=order)
 
 if __name__ == '__main__':
     app.run(debug=False)

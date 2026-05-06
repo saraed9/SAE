@@ -1,77 +1,85 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ grand.nom }} - Spectra</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='accueil.css') }}">
-</head>
-<body>
-    <nav class="navbar">
-        <div class="container nav-content">
-            <a href="/" class="btn btn-nav">🏠 Accueil</a>
-            <div style="display: flex; gap: 1rem;">
-                <a href="/panier" class="btn btn-nav">🛒 Panier</a>
-                {% if session.get('user_id') %}
-                    <a href="/profil" class="btn btn-nav">👤 Mon profil</a>
-                    <a href="/logout" class="btn btn-nav">🚪 Déconnexion</a>
-                {% else %}
-                    <a href="/login" class="btn btn-nav">👤 Connexion</a>
-                {% endif %}
-            </div>
-        </div>
-    </nav>
-
-    <main class="container" style="padding-top: 2rem;">
-        
-        <!-- Header du spectacle -->
-        <div style="display: flex; gap: 2rem; margin-bottom: 3rem; align-items: flex-start;">
-            {% if grand.image %}
-                <img src="{{ grand.image }}" alt="{{ grand.nom }}" style="width: 300px; height: 200px; object-fit: cover; border-radius: 0.625rem;">
-            {% endif %}
-            <div>
-                <h2 style="margin: 0 0 1rem 0;">{{ grand.nom }}</h2>
-                <p style="color: #6b7280; line-height: 1.6;">{{ grand.description }}</p>
-            </div>
-        </div>
-
-        <!-- Dates disponibles -->
-        <h3 style="margin-bottom: 1rem;">📅 Dates disponibles</h3>
-        {% if representations %}
-        <div class="grid">
-            {% for s in representations %}
-            <div class="card">
-                <div style="padding: 1rem;">
-                    <h4 style="margin: 0 0 0.5rem 0;">{{ s.titre }}</h4>
-                    <p style="color: #6b7280; font-size: 0.875rem;">📅 {{ s.date }}</p>
-                    <p style="color: #6b7280; font-size: 0.875rem;">📍 {{ s.lieu }}</p>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
-                        <span style="font-size: 1.2rem; font-weight: bold; color: #4f46e5;">{{ s.prix }} €</span>
-                        <a href="/panier/ajouter/{{ s.id }}" class="btn btn-primary">Réserver</a>
+    <head>
+        <meta charset="UTF-8">
+        <title>{{ grand.nom }} - Spectra</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='accueil.css') }}">
+    </head>
+    <body>
+        <nav class="navbar">
+            <div class="container nav-content">
+                <a href="/" class="btn btn-nav">🏠 Accueil</a>
+                <div style="display: flex; gap: 1rem;">
+                    {% if session.get('user_id') %}
+                    <a href="/panier" class="btn btn-nav">🛒 Panier</a>
+                    {% endif %}
+                    <div class="group">
+                        <button class="btn btn-nav"><span>👤</span></button>
+                        <div class="dropdown-menu">
+                        {% if session.get('user_id') %}
+                            <a href="/profil" class="dropdown-item">👤 Profil</a>
+                            <a href="/logout" class="dropdown-item">🚪 Déconnexion</a>
+                        {% else %}
+                            <a href="/login" class="dropdown-item">👤 Connexion</a>
+                            <a href="/register" class="dropdown-item">📝 Inscription</a>
+                        {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
-            {% endfor %}
-        </div>
-        {% else %}
-            <p style="color: #6b7280;">Aucune représentation disponible.</p>
-        {% endif %}
+        </nav>
 
-        <!-- Avis -->
-        <h3 style="margin: 3rem 0 1rem 0;">💬 Avis des spectateurs</h3>
-        {% if avis %}
-            {% for a in avis %}
-            <div class="card" style="margin-bottom: 1rem;">
-                <div style="padding: 1rem;">
-                    <p style="color: #374151; margin: 0;">{{ a.commentaire }}</p>
+        <main class="container" style="padding-top: 2rem;">
+            
+            <!-- Header du spectacle -->
+            <div style="display: flex; gap: 2rem; margin-bottom: 3rem; align-items: flex-start;">
+                {% if grand.image %}
+                    <img src="{{ grand.image }}" alt="{{ grand.nom }}" style="width: 300px; height: 200px; object-fit: cover; border-radius: 0.625rem;">
+                {% endif %}
+                <div>
+                    <h2 style="margin: 0 0 1rem 0;">{{ grand.nom }}</h2>
+                    <p style="color: #6b7280; line-height: 1.6;">{{ grand.description }}</p>
                 </div>
             </div>
-            {% endfor %}
-        {% else %}
-            <p style="color: #6b7280;">Aucun avis pour ce spectacle.</p>
-        {% endif %}
 
-        <a href="/" class="btn btn-nav" style="margin-top: 2rem; display: inline-block; background: #4f46e5;">← Retour</a>
-    </main>
-</body>
+            <!-- Dates disponibles -->
+            <h3 style="margin-bottom: 1rem;">📅 Dates disponibles</h3>
+            {% if representations %}
+            <div class="grid">
+                {% for s in representations %}
+                <div class="card">
+                    <div style="padding: 1rem;">
+                        <h4 style="margin: 0 0 0.5rem 0;">{{ s.titre }}</h4>
+                        <p style="color: #6b7280; font-size: 0.875rem;">📅 {{ s.date }}</p>
+                        <p style="color: #6b7280; font-size: 0.875rem;">📍 {{ s.lieu }}</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                            <span style="font-size: 1.2rem; font-weight: bold; color: #4f46e5;">{{ s.prix }} €</span>
+                            <a href="/panier/ajouter/{{ s.id }}" class="btn btn-primary">Réserver</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+                <p style="color: #6b7280;">Aucune représentation disponible.</p>
+            {% endif %}
+
+            <!-- Avis -->
+            <h3 style="margin: 3rem 0 1rem 0;">💬 Avis des spectateurs</h3>
+            {% if avis %}
+                {% for a in avis %}
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div style="padding: 1rem;">
+                        <p style="color: #374151; margin: 0;">{{ a.commentaire }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: #6b7280;">Aucun avis pour ce spectacle.</p>
+            {% endif %}
+
+            <a href="/" class="btn btn-nav" style="margin-top: 2rem; display: inline-block; background: #4f46e5;">← Retour</a>
+        </main>
+    </body>
 </html>

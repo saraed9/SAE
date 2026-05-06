@@ -57,6 +57,18 @@
                         <label for="remember" class="label" style="margin: 0;">Se souvenir de moi</label>
                     </div>
 
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="flash-container">
+                        {% for category, message in messages %}
+                            <div class="flash {{ category }}">
+                            {{ message }}
+                            </div>
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% endwith %}
+
                     <!-- Bouton Submit -->
                     <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 1rem;">
                         Se connecter
