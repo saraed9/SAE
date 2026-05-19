@@ -11,6 +11,7 @@ from models.spectacle import GrandSpectacle, Spectacle
 from models.avis import Avis
 from models.commande import Commande
 from models.ticket import Ticket
+from models.panier import PanierItem
 
 
 # Configuration de l'application Flask
@@ -60,7 +61,6 @@ def login():
             session.clear()  # Réinitialiser les tentatives après une connexion réussie
             session['user_id'] = user.id
             session['email'] = user.email
-            session['panier'] = {}
             return redirect('/')
         
         flash("Email ou mot de passe incorrect", "error")        
@@ -87,7 +87,6 @@ def register():
             user = result["user"]
             session['user_id'] = user.id
             session['email'] = user.email
-            session['panier'] = {}
             flash("Inscription réussie !", "success")
             return redirect('/')
         
@@ -127,21 +126,20 @@ def panier():
         flash("Vous devez être connecté pour accéder à votre panier", "info")
         return redirect('/login')
     
-    if 'panier' not in session:
-        session['panier'] = {}
+    panier = PanierItem.query.filter_by(user_id=session['user_id']).order_by(PanierItem.id).all()
 
     cart_items = []
     total = 0
-    for id_sp, quantite in session['panier'].items():
-        spectacle = Spectacle.par_id(int(id_sp))
+    for item in panier:
+        spectacle = Spectacle.par_id(item.spectacle_id)
         if spectacle:
-            sous_total = float(spectacle.prix) * quantite
+            sous_total = float(spectacle.prix) * item.quantite
             total += sous_total
             cart_items.append({
                 "id": spectacle.id,
                 "title": spectacle.titre,
                 "price": float(spectacle.prix),
-                "quantity": quantite,
+                "quantity": item.quantite,
                 "location": spectacle.lieu,
                 "date": spectacle.date,
                 "subtotal": sous_total
@@ -155,22 +153,20 @@ def ajouter_panier(spectacle_id):
         flash("Vous devez être connecté pour ajouter un spectacle à votre panier", "info")
         return redirect('/login')
     
-    if 'panier' not in session:
-        session['panier'] = {}
-
-    panier = session['panier']
-    cle = str(spectacle_id)
-    if cle in panier:
-        if panier[cle] < 4:
-            panier[cle] += 1
+    user_id = session['user_id']
+    item = PanierItem.query.filter_by(user_id=user_id, spectacle_id=spectacle_id).first()
+    if item:
+        if item.quantite < 4:
+            item.quantite += 1
         else:
             flash("Vous ne pouvez pas ajouter plus de 4 billets pour ce spectacle", "error")
             return redirect('/panier')
     else:
-        panier[cle] = 1
-    session['panier'] = panier
+        item = PanierItem(user_id=user_id, spectacle_id=spectacle_id, quantite=1)
+        db.session.add(item)
+    
+    db.session.commit()
     return redirect('/panier')
-
 
 @app.route('/panier/diminuer/<int:spectacle_id>')
 def diminuer_panier(spectacle_id):
@@ -178,17 +174,13 @@ def diminuer_panier(spectacle_id):
         flash("Vous devez être connecté pour modifier votre panier", "info")
         return redirect('/login')
     
-    if 'panier' not in session:
-        session['panier'] = {}
-
-    panier = session['panier']
-    cle = str(spectacle_id)
-    if cle in panier:
-        if panier[cle] > 1:
-            panier[cle] -= 1
+    item = PanierItem.query.filter_by(user_id=session['user_id'], spectacle_id=spectacle_id).first()
+    if item:
+        if item.quantite > 1:
+            item.quantite -= 1
         else:
-            panier.pop(cle, None)
-    session['panier'] = panier
+            db.session.delete(item)
+        db.session.commit()
     return redirect('/panier')
 
 @app.route('/panier/supprimer/<int:spectacle_id>')
@@ -197,13 +189,11 @@ def supprimer_panier(spectacle_id):
         flash("Vous devez être connecté pour modifier votre panier", "info")
         return redirect('/login')
     
-    if 'panier' not in session:
-        session['panier'] = {}
-
-    panier = session['panier']
-    cle = str(spectacle_id)
-    panier.pop(cle, None)
-    session['panier'] = panier
+    item = PanierItem.query.filter_by(user_id=session['user_id'], spectacle_id=spectacle_id).first()
+    if item:
+        db.session.delete(item)
+        db.session.commit()
+        flash("Spectacle supprimé du panier", "info")
     return redirect('/panier')
 
 @app.route('/paiement', methods=['GET', 'POST'])
@@ -212,23 +202,23 @@ def paiement():
         flash("Vous devez être connecté pour payer", "info")
         return redirect('/login')
 
-    panier = session.get('panier', {})
+    panier = PanierItem.query.filter_by(user_id=session['user_id']).all()
     if not panier:
-        flash("Votre panier est vide", "error")
+        flash("Votre panier est vide", "info")
         return redirect('/panier')
     
     if request.method == 'POST':
         total = 0
         quantite_totale = 0
-        for id_sp, quantite in panier.items():
-            if quantite < 1 or quantite > 4:
+        for item in panier:
+            if item.quantite < 1 or item.quantite > 4:
                 flash("Limite de 4 billets maximum par spectacle dépassée.", "error")
                 return redirect('/panier')
             
-            spectacle = Spectacle.par_id(int(id_sp))
+            spectacle = Spectacle.par_id(item.spectacle_id)
             if spectacle:
-                total += float(spectacle.prix) * quantite
-                quantite_totale += quantite
+                total += float(spectacle.prix) * item.quantite
+                quantite_totale += item.quantite
 
         nouvelle_commande = Commande(
             user_id=session['user_id'],
@@ -237,11 +227,16 @@ def paiement():
         )
         
         if nouvelle_commande.save():
-            for id_sp, quantite in panier.items():
-                Ticket.generer(commande_id=nouvelle_commande.id, spectacle_id=int(id_sp), quantite=quantite)
-            session['dernier_panier'] = panier
-            session.pop('panier', None)
-            flash("Paiement validé avec succès !", "success")
+            for item in panier:
+                Ticket.generer(commande_id=nouvelle_commande.id, spectacle_id=item.spectacle_id, quantite=item.quantite)
+            
+            # Supprime le panier après le paiement réussi
+            PanierItem.query.filter_by(user_id=session['user_id']).delete()
+            db.session.commit()
+
+            # Stocke l'ID de la commande récente pour la page de confirmation
+            session['commande_recente_id'] = nouvelle_commande.id
+            flash("Paiement validé !", "success")
             return redirect('/confirmation')
         else:
             flash("Une erreur est survenue lors du paiement", "error")
@@ -255,25 +250,31 @@ def confirmation():
         flash("Vous devez être connecté", "info")
         return redirect('/login')
     
+    commande_id = session.pop('commande_recente_id', None)
+    if not commande_id:
+        flash("Aucune commande payée récemment", "info")
+        return redirect('/')
+
     order = Commande.query.filter_by(user_id=session['user_id']).order_by(Commande.id.desc()).first()
     if not order:
         flash("Aucune commande trouvée", "error")
         return redirect('/')
     
-    # On récupère le panier sauvegardé pour afficher les détails
-    panier_details = []
-    dernier_panier = session.pop('dernier_panier', {})   # pop() récupère et vide en même temps
-    
-    for id_sp, quantite in dernier_panier.items():
+    cpt_spectacles = {}
+    for ticket in order.tickets:
+        cpt_spectacles[ticket.spectacle_id] = cpt_spectacles.get(ticket.spectacle_id, 0) + 1
+
+    details = []
+    for id_sp, quantite in cpt_spectacles.items():
         spectacle = Spectacle.par_id(int(id_sp))
         if spectacle:
-            panier_details.append({
+            details.append({
                 'spectacle': spectacle,
                 'quantite': quantite,
                 'sous_total': float(spectacle.prix) * quantite
             })
             
-    return render_template('confirmation.html', order=order, details=panier_details)
+    return render_template('confirmation.html', order=order, details=details)
     
 
 if __name__ == '__main__':
