@@ -68,6 +68,11 @@ def login():
     
     return render_template('login.html')
 
+@app.route('/forgot_password')
+def forgot_password():
+    flash("Sorry... La réinitialisation par email est désactivée sur cet environnement de test.", "info")
+    return redirect('/login')
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if 'user_id' in session:
@@ -163,6 +168,41 @@ def ajouter_panier(spectacle_id):
             return redirect('/panier')
     else:
         panier[cle] = 1
+    session['panier'] = panier
+    return redirect('/panier')
+
+
+@app.route('/panier/diminuer/<int:spectacle_id>')
+def diminuer_panier(spectacle_id):
+    if 'user_id' not in session:
+        flash("Vous devez être connecté pour modifier votre panier", "info")
+        return redirect('/login')
+    
+    if 'panier' not in session:
+        session['panier'] = {}
+
+    panier = session['panier']
+    cle = str(spectacle_id)
+    if cle in panier:
+        if panier[cle] > 1:
+            panier[cle] -= 1
+        else:
+            panier.pop(cle, None)
+    session['panier'] = panier
+    return redirect('/panier')
+
+@app.route('/panier/supprimer/<int:spectacle_id>')
+def supprimer_panier(spectacle_id):
+    if 'user_id' not in session:
+        flash("Vous devez être connecté pour modifier votre panier", "info")
+        return redirect('/login')
+    
+    if 'panier' not in session:
+        session['panier'] = {}
+
+    panier = session['panier']
+    cle = str(spectacle_id)
+    panier.pop(cle, None)
     session['panier'] = panier
     return redirect('/panier')
 

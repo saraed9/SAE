@@ -48,13 +48,7 @@
                     <div class="form-group">
                         <label class="label">Mot de passe</label>
                         <input type="password" name="password" placeholder="••••••••" class="input" required>
-                        <a href="#" style="font-size: 0.675rem; color: #4f46e5; text-decoration: none;">Mot de passe oublié ?</a>
-                    </div>
-
-                    <!-- Se souvenir de moi -->
-                    <div class="form-group checkbox-group">
-                        <input type="checkbox" name="remember" id="remember" style="width: 1rem; height: 1rem;">
-                        <label for="remember" class="label" style="margin: 0;">Se souvenir de moi</label>
+                        <a href="/forgot_password" style="font-size: 0.675rem; color: #4f46e5; text-decoration: none;">Mot de passe oublié ?</a>
                     </div>
 
                     {% with messages = get_flashed_messages(with_categories=true) %}

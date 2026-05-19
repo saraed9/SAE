@@ -39,9 +39,23 @@
     padding: 0.2rem 0.6rem;
     border-radius: 4px;
     cursor: pointer;
+    text-decoration: none;
+    text-align: center;
 }
 
 .btn-qty:hover { background: #f9fafb; }
+
+.btn-suppr {
+    color: var(--destructive);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    text-decoration: underline;
+}
+
+.btn-suppr:hover { color: #dc2626; }
+
 
 /* --- Sidebar Récapitulatif --- */
 .summary-card {
