@@ -32,6 +32,18 @@
             </div>
         </nav>
 
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-container">
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">
+                {{ message }}
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+        {% endwith %}
+
         <div class="container">
             <h2 style="margin-top: 2rem; font-size: 2rem;">Mon Panier</h2>
 

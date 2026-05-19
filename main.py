@@ -2,6 +2,9 @@ from flask import Flask, flash, redirect, render_template, request, session
 from datetime import datetime
 import os
 
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 from models.extensions import db, bcrypt
 from models.user import User
 from models.spectacle import GrandSpectacle, Spectacle
@@ -12,6 +15,14 @@ from models.ticket import Ticket
 
 # Configuration de l'application Flask
 app = Flask(__name__)
+
+# Configuration du rate limiter pour limiter les requêtes par adresse IP
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://"     # stockage en mémoire vive du serveur
+)
 
 # Configuration de la base de données
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Postgres113@localhost/Spectra'
@@ -34,16 +45,14 @@ def index():
     return render_template('accueil.html', spectacles=grands)
 
 @app.route('/login', methods=['GET', 'POST'])
+@limiter.limit("5 per minute", exempt_when=lambda: request.method == "GET", error_message="Trop de tentatives de connexion. Veuillez réessayer dans 1 minute.")  # Limite de 5 tentatives de connexion par minute
 def login():
+    if 'user_id' in session:
+        return redirect('/profil')
+
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
-
-        # Contrôle de sécurité : limiter les tentatives de connexion
-        if 'login_attempts' not in session:
-            session['login_attempts'] = 0
-        if session['login_attempts'] > 5:
-            return "Trop de tentatives", 429
         
         # Authentification
         user = User.check_login(email, password)
@@ -54,15 +63,16 @@ def login():
             session['panier'] = {}
             return redirect('/')
         
-        session['login_attempts'] += 1
         flash("Email ou mot de passe incorrect", "error")        
         return redirect('/login')
     
-    session['login_attempts'] = 0  # Réinitialiser les tentatives à l'affichage du formulaire
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    if 'user_id' in session:
+        return redirect('/profil')
+    
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
@@ -148,6 +158,9 @@ def ajouter_panier(spectacle_id):
     if cle in panier:
         if panier[cle] < 4:
             panier[cle] += 1
+        else:
+            flash("Vous ne pouvez pas ajouter plus de 4 billets pour ce spectacle", "error")
+            return redirect('/panier')
     else:
         panier[cle] = 1
     session['panier'] = panier
@@ -159,12 +172,19 @@ def paiement():
         flash("Vous devez être connecté pour payer", "info")
         return redirect('/login')
 
+    panier = session.get('panier', {})
+    if not panier:
+        flash("Votre panier est vide", "error")
+        return redirect('/panier')
+    
     if request.method == 'POST':
-        panier = session.get('panier', {})
         total = 0
         quantite_totale = 0
-
         for id_sp, quantite in panier.items():
+            if quantite < 1 or quantite > 4:
+                flash("Limite de 4 billets maximum par spectacle dépassée.", "error")
+                return redirect('/panier')
+            
             spectacle = Spectacle.par_id(int(id_sp))
             if spectacle:
                 total += float(spectacle.prix) * quantite
@@ -175,9 +195,17 @@ def paiement():
             quantite=quantite_totale,
             montant_total=total
         )
-        nouvelle_commande.save()
-        session.pop('panier', None)
-        return redirect('/confirmation')
+        
+        if nouvelle_commande.save():
+            for id_sp, quantite in panier.items():
+                Ticket.generer(commande_id=nouvelle_commande.id, spectacle_id=int(id_sp), quantite=quantite)
+            session['dernier_panier'] = panier
+            session.pop('panier', None)
+            flash("Paiement validé avec succès !", "success")
+            return redirect('/confirmation')
+        else:
+            flash("Une erreur est survenue lors du paiement", "error")
+            return redirect('/panier')
 
     return render_template('paiement.html')
 
@@ -192,7 +220,21 @@ def confirmation():
         flash("Aucune commande trouvée", "error")
         return redirect('/')
     
-    return render_template('confirmation.html', order=order)
+    # On récupère le panier sauvegardé pour afficher les détails
+    panier_details = []
+    dernier_panier = session.pop('dernier_panier', {})   # pop() récupère et vide en même temps
+    
+    for id_sp, quantite in dernier_panier.items():
+        spectacle = Spectacle.par_id(int(id_sp))
+        if spectacle:
+            panier_details.append({
+                'spectacle': spectacle,
+                'quantite': quantite,
+                'sous_total': float(spectacle.prix) * quantite
+            })
+            
+    return render_template('confirmation.html', order=order, details=panier_details)
+    
 
 if __name__ == '__main__':
     app.run(debug=False)

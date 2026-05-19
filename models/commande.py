@@ -11,7 +11,7 @@ class Commande(db.Model):
 
     # Relations pour faciliter le code
     client = db.relationship('User', backref='mes_commandes')
-    billets = db.relationship('Ticket', backref='la_commande', cascade="all, delete-orphan")
+    tickets = db.relationship('Ticket', backref='commande', cascade="all, delete-orphan")
 
     def __init__(self, user_id, quantite, montant_total):
         self.user_id = user_id
@@ -20,7 +20,7 @@ class Commande(db.Model):
         self.reference = f"CMD-{datetime.now().strftime('%y%m%d%H%M%S')}"
 
     def save(self):
-        if 1 <= self.quantite <= 4:
+        if self.quantite >= 1:
             db.session.add(self)
             db.session.commit()
             return True
