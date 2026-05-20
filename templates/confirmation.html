@@ -33,37 +33,48 @@
 
         <!-- Contenu de la Page (utilise confirmation.css) -->
         <div class="confirmation-wrapper">
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">
+                    {{ message }}
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
             
             <!-- Message de succès -->
             <div class="success-card">
-                <h2 style="font-size: 1.8rem; margin: 0;">Merci pour votre commande n°{{ order.number }} !</h2>
+                <h2 style="font-size: 1.8rem; margin: 0;">Merci pour votre commande {{ order.id }} !</h2>
             </div>
 
             <!-- Facture -->
             <div class="invoice-box">
                 <h3 class="invoice-header">FACTURE</h3>
                 
-                {% for ticket in order.tickets %}
+                {% for ticket in details %}
                 <div class="item-row">
                     <div class="item-details">
-                        <h5>{{ ticket.title }}</h5>
-                        <p>{{ ticket.date }} - {{ ticket.location }}</p>
+                        <h5>{{ ticket.spectacle.titre }}</h5>
+                        <p>{{ ticket.spectacle.date }} - {{ ticket.spectacle.lieu }}</p>
                     </div>
                     <div style="text-align: right;">
-                        <p style="margin: 0; font-weight: 600;">Qté: {{ ticket.quantity }}</p>
-                        <p style="margin: 0; font-weight: bold; color: #4f46e5;">{{ ticket.price }}€</p>
+                        <p style="margin: 0; font-weight: 600;">Qté: {{ ticket.quantite }}</p>
+                        <p style="margin: 0; font-weight: bold; color: #4f46e5;">{{ ticket.sous_total }}€</p>
                     </div>
                 </div>
                 {% endfor %}
 
                 <!-- Totaux -->
                 <div class="grand-total">
-                    Total : {{ total }}€
+                    Total : {{ order.montant_total }}€
                 </div>
 
                 <!-- Boutons d'action -->
                 <div class="action-btns">
-                    <button class="btn btn-primary" style="flex: 1; justify-content: center;">Télécharger PDF</button>
                     <a href="/" class="btn" style="flex: 1; justify-content: center; border: 1px solid var(--border);">Retour à l'accueil</a>
                 </div>
             </div>

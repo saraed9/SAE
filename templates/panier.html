@@ -32,6 +32,18 @@
             </div>
         </nav>
 
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-container">
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">
+                {{ message }}
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+        {% endwith %}
+
         <div class="container">
             <h2 style="margin-top: 2rem; font-size: 2rem;">Mon Panier</h2>
 
@@ -46,14 +58,14 @@
                             
                             <div class="quantity-controls">
                                 <span style="font-size: 0.9rem;">Quantité :</span>
-                                <button class="btn-qty">-</button>
+                                <a href="/panier/diminuer/{{ item.id }}" class="btn-qty">-</a>
                                 <span class="font-bold">{{ item.quantity }}</span>
-                                <button class="btn-qty">+</button>
+                                <a href="/panier/ajouter/{{ item.id }}" class="btn-qty">+</a>
                             </div>
                         </div>
                         
                         <div style="text-align: right; display: flex; flex-direction: column; justify-content: space-between;">
-                            <button style="color: var(--destructive); background: none; border: none; cursor: pointer; font-size: 0.8rem;">Supprimer</button>
+                            <a href="/panier/supprimer/{{ item.id }}" class="btn-suppr">Supprimer</a>
                             <div style="font-size: 1.5rem; font-weight: bold; color: #4f46e5;">{{ item.subtotal }}€</div>
                         </div>
                     </div>
