@@ -13,6 +13,16 @@ class GrandSpectacle(db.Model):
     def lister_tous():
         return GrandSpectacle.query.all()
 
+    @staticmethod
+    def rechercher(query):
+        """Recherche les spectacles dont le nom ou la description contient le mot clé"""
+        terme = f"%{query}%"
+        return GrandSpectacle.query.filter(
+            db.or_(
+                GrandSpectacle.nom.ilike(terme),
+                GrandSpectacle.description.ilike(terme)
+            )
+        ).all()
 
 
 class Spectacle(db.Model):

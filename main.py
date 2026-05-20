@@ -1,6 +1,7 @@
 from flask import Flask, flash, redirect, render_template, request, session
 from datetime import datetime
 import os
+import re
 
 from models.extensions import db, bcrypt
 from models.user import User
@@ -10,45 +11,52 @@ from models.commande import Commande
 from models.ticket import Ticket
 
 
-# Configuration de l'application Flask
 app = Flask(__name__)
 
-# Configuration de la base de données
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Postgres113@localhost/Spectra'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:postgres123@localhost/tickets_spectacle'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.urandom(32).hex()
 
-# Initialisation de la base de données et de Bcrypt
 db.init_app(app)
 bcrypt.init_app(app)
 
-# Création de la base de données
 with app.app_context():
-    db.create_all()
     print("Connexion OK")
 
-# Routes pour les pages principales
 @app.route('/')
 def index():
     grands = GrandSpectacle.lister_tous()
-    return render_template('accueil.html', spectacles=grands)
+    return render_template('accueil.html', spectacles=grands, query=None)
+
+@app.route('/recherche')
+def recherche():
+    query = request.args.get('q', '').strip()
+    # Protection XSS : on nettoie la recherche avant de l'utiliser
+    query = re.sub(r'<[^>]*>', '', query)
+    if query:
+        spectacles = GrandSpectacle.rechercher(query)
+    else:
+        spectacles = GrandSpectacle.lister_tous()
+    return render_template('accueil.html', spectacles=spectacles, query=query)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '')
 
-        # Contrôle de sécurité : limiter les tentatives de connexion
+        if not re.match(r'^[^@]+@[^@]+\.[^@]+$', email):
+            flash("Email invalide", "error")
+            return redirect('/login')
+
         if 'login_attempts' not in session:
             session['login_attempts'] = 0
         if session['login_attempts'] > 5:
             return "Trop de tentatives", 429
         
-        # Authentification
         user = User.check_login(email, password)
         if user is not None:
-            session.clear()  # Réinitialiser les tentatives après une connexion réussie
+            session.clear()
             session['user_id'] = user.id
             session['email'] = user.email
             session['panier'] = {}
@@ -58,14 +66,18 @@ def login():
         flash("Email ou mot de passe incorrect", "error")        
         return redirect('/login')
     
-    session['login_attempts'] = 0  # Réinitialiser les tentatives à l'affichage du formulaire
+    session['login_attempts'] = 0
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '')
+
+        if not re.match(r'^[^@]+@[^@]+\.[^@]+$', email):
+            flash("Email invalide", "error")
+            return redirect('/register')
 
         result = User.register(email, password)
         if "user" in result:
@@ -75,7 +87,6 @@ def register():
             session['panier'] = {}
             flash("Inscription réussie !", "success")
             return redirect('/')
-        
         elif result["error"] == "email_existe":
             flash("Cet email est déjà utilisé", "info")
         elif result["error"] == "mdp_faible":
@@ -105,6 +116,27 @@ def detail_spectacle(id):
     representations = Spectacle.query.filter_by(grand_spectacle_id=id).all()
     avis = Avis.query.filter_by(grand_spectacle_id=id).all()
     return render_template('detail_spectacle.html', grand=grand, representations=representations, avis=avis)
+
+@app.route('/avis/ajouter/<int:grand_spectacle_id>', methods=['POST'])
+def ajouter_avis(grand_spectacle_id):
+    if 'user_id' not in session:
+        flash("Vous devez être connecté pour laisser un avis", "error")
+        return redirect('/login')
+
+    commentaire = request.form.get('commentaire', '').strip()
+
+    avis = Avis(
+        utilisateur_id=session['user_id'],
+        grand_spectacle_id=grand_spectacle_id,
+        commentaire=commentaire
+    )
+
+    if avis.publier():
+        flash("Avis publié avec succès !", "success")
+    else:
+        flash("Le commentaire doit faire entre 3 et 900 caractères", "error")
+
+    return redirect(f'/spectacle/{grand_spectacle_id}')
 
 @app.route('/panier')
 def panier():

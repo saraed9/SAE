@@ -43,38 +43,40 @@
         {% if messages %}
             <div class="flash-container">
             {% for category, message in messages %}
-                <div class="flash {{ category }}">
-                {{ message }}
-                </div>
+                <div class="flash {{ category }}">{{ message }}</div>
             {% endfor %}
             </div>
         {% endif %}
         {% endwith %}
 
+        <!-- Barre de recherche connectée -->
         <div class="container">
-            <div class="search-container">
-                <input type="text" placeholder="Rechercher un spectacle...">
-                <button class="btn btn-primary">Rechercher</button>
-            </div>
+            <form method="GET" action="/recherche" class="search-container">
+                <input type="text" name="q" placeholder="Rechercher un spectacle..." value="{{ query if query else '' }}">
+                <button type="submit" class="btn btn-primary">Rechercher</button>
+            </form>
         </div>
 
         <main class="container">
+            {% if query and spectacles|length == 0 %}
+                <p style="color: #6b7280; text-align: center; margin-top: 2rem;">Aucun spectacle trouvé pour "{{ query }}".</p>
+            {% endif %}
             <div class="grid">
                 {% for grand in spectacles %}
-    <a href="/spectacle/{{ grand.id }}" style="text-decoration: none; color: inherit;">
-        <div class="card" style="cursor: pointer;">
-            {% if grand.image %}
-                <img src="{{ grand.image }}" alt="{{ grand.nom }}">
-            {% else %}
-                <img src="https://via.placeholder.com/400x200?text=Pas+d'image" alt="Pas d'image">
-            {% endif %}
-            <div style="padding: 1rem;">
-                <h4 style="margin: 0 0 0.5rem 0; font-size: 1.2rem; font-weight: bold; color: #1f2937;">{{ grand.nom }}</h4>
-                <p style="font-size: 0.875rem; color: #6b7280; line-height: 1.5;">{{ grand.description }}</p>
-            </div>
-        </div>
-    </a>
-    {% endfor %}
+                <a href="/spectacle/{{ grand.id }}" style="text-decoration: none; color: inherit;">
+                    <div class="card" style="cursor: pointer;">
+                        {% if grand.image %}
+                            <img src="{{ grand.image }}" alt="{{ grand.nom }}">
+                        {% else %}
+                            <img src="https://via.placeholder.com/400x200?text=Pas+d'image" alt="Pas d'image">
+                        {% endif %}
+                        <div style="padding: 1rem;">
+                            <h4 style="margin: 0 0 0.5rem 0; font-size: 1.2rem; font-weight: bold; color: #1f2937;">{{ grand.nom }}</h4>
+                            <p style="font-size: 0.875rem; color: #6b7280; line-height: 1.5;">{{ grand.description }}</p>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
             </div>
         </main>
     </body>

@@ -67,6 +67,13 @@
 
             <!-- Avis -->
             <h3 style="margin: 3rem 0 1rem 0;">💬 Avis des spectateurs</h3>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <p style="color: {% if category == 'error' %}red{% else %}green{% endif %};">{{ message }}</p>
+                {% endfor %}
+            {% endwith %}
+
             {% if avis %}
                 {% for a in avis %}
                 <div class="card" style="margin-bottom: 1rem;">
@@ -78,6 +85,30 @@
             {% else %}
                 <p style="color: #6b7280;">Aucun avis pour ce spectacle.</p>
             {% endif %}
+
+            <!-- Formulaire ajouter un avis -->
+            {% if session.get('user_id') %}
+            <div class="card" style="margin-top: 2rem;">
+                <div style="padding: 1.5rem;">
+                    <h4 style="margin: 0 0 1rem 0;">✍️ Laisser un avis</h4>
+                    <form method="POST" action="/avis/ajouter/{{ grand.id }}">
+                        <textarea 
+                            name="commentaire" 
+                            placeholder="Votre commentaire (3 à 900 caractères)..." 
+                            maxlength="900"
+                            required
+                            style="width: 100%; min-height: 100px; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 1rem; resize: vertical; box-sizing: border-box;"
+                        ></textarea>
+                        <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Publier</button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+                <p style="color: #6b7280; margin-top: 1rem;">
+                    <a href="/login" style="color: #4f46e5;">Connectez-vous</a> pour laisser un avis.
+                </p>
+            {% endif %}
+
         </main>
     </body>
 </html>
