@@ -4,6 +4,7 @@ import os
 
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+import re
 
 from models.extensions import db, bcrypt
 from models.user import User
