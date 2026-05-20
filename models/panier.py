@@ -15,3 +15,36 @@ class PanierItem(db.Model):
         self.user_id = user_id
         self.spectacle_id = spectacle_id
         self.quantite = quantite
+    
+    @classmethod
+    def getPanierComplet(self, user_id):
+        """Calcule les totaux et extrait les détails du panier d'un utilisateur."""
+        from models.spectacle import Spectacle  # Évite les imports circulaires
+        
+        panier = self.query.filter_by(user_id=user_id).order_by(self.id).all()
+        cart_items = []
+        total = 0
+        quantite_totale = 0
+
+        for item in panier:
+            spectacle = Spectacle.par_id(item.spectacle_id)
+            if spectacle:
+                sous_total = float(spectacle.prix) * item.quantite
+                total += sous_total
+                quantite_totale += item.quantite
+                cart_items.append({
+                    "id": spectacle.id,
+                    "titre": spectacle.titre,
+                    "price": float(spectacle.prix),
+                    "quantity": item.quantite,
+                    "location": spectacle.lieu,
+                    "date": spectacle.date,
+                    "subtotal": sous_total
+                })
+
+        return {
+            "items": cart_items,
+            "montant_total": total,
+            "quantite_totale": quantite_totale,
+            "items_raw": panier
+        }

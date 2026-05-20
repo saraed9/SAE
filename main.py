@@ -13,6 +13,7 @@ from models.avis import Avis
 from models.commande import Commande
 from models.ticket import Ticket
 from models.panier import PanierItem
+from services.paiement import verifCarte
 
 
 app = Flask(__name__)
@@ -159,26 +160,8 @@ def panier():
         flash("Vous devez être connecté pour accéder à votre panier", "info")
         return redirect('/login')
     
-    panier = PanierItem.query.filter_by(user_id=session['user_id']).order_by(PanierItem.id).all()
-
-    cart_items = []
-    total = 0
-    for item in panier:
-        spectacle = Spectacle.par_id(item.spectacle_id)
-        if spectacle:
-            sous_total = float(spectacle.prix) * item.quantite
-            total += sous_total
-            cart_items.append({
-                "id": spectacle.id,
-                "title": spectacle.titre,
-                "price": float(spectacle.prix),
-                "quantity": item.quantite,
-                "location": spectacle.lieu,
-                "date": spectacle.date,
-                "subtotal": sous_total
-            })
-
-    return render_template('panier.html', items=cart_items, total=total)
+    panier = PanierItem.getPanierComplet(session['user_id'])
+    return render_template('panier.html', items=panier['items'], total=panier['montant_total'])
 
 @app.route('/panier/ajouter/<int:spectacle_id>')
 def ajouter_panier(spectacle_id):
@@ -235,37 +218,24 @@ def paiement():
         flash("Vous devez être connecté pour payer", "info")
         return redirect('/login')
 
-    panier = PanierItem.query.filter_by(user_id=session['user_id']).all()
+    panier = PanierItem.getPanierComplet(session['user_id'])
     if not panier:
         flash("Votre panier est vide", "info")
         return redirect('/panier')
     
     if request.method == 'POST':
-        carteOk = verifCarte(request.form)  # Vérification des données de paiement (simulée)
-        if not carteOk:
-            # Si la validation échoue, on retourne à la page de paiement avec les données du formulaire pour éviter de les perdre
+        # Si la vérification de la carte échoue, on retourne à la page de paiement avec les données du formulaire pour éviter de les perdre
+        if not verifCarte(request.form):
             return render_template('paiement.html', form_data=request.form)
-
-        total = 0
-        quantite_totale = 0
-        for item in panier:
-            if item.quantite < 1 or item.quantite > 4:
-                flash("Limite de 4 billets maximum par spectacle dépassée.", "error")
-                return redirect('/panier')
-            
-            spectacle = Spectacle.par_id(item.spectacle_id)
-            if spectacle:
-                total += float(spectacle.prix) * item.quantite
-                quantite_totale += item.quantite
 
         nouvelle_commande = Commande(
             user_id=session['user_id'],
-            quantite=quantite_totale,
-            montant_total=total
+            quantite=panier['quantite_totale'],
+            montant_total=panier['montant_total']
         )
         
         if nouvelle_commande.save():
-            for item in panier:
+            for item in panier['items_raw']:
                 Ticket.generer(commande_id=nouvelle_commande.id, spectacle_id=item.spectacle_id, quantite=item.quantite)
             
             # Supprime le panier après le paiement réussi
@@ -314,77 +284,6 @@ def confirmation():
             
     return render_template('confirmation.html', order=order, details=details)
 
-
-def verifCarte(form):
-    card_name = form.get('card_name').strip()
-    card_number = form.get('card_number').replace(" ", "")
-    expiry = form.get('card_expiry').strip()
-    cvv = form.get('card_cvv').strip()
-
-    # Vérification du nom sur la carte
-    if not card_name or len(card_name) < 2:
-        flash("Le nom sur la carte n'est pas valie. (minimum 2 caractères)", "error")
-        return False
-
-    # Vérification du numéro de carte 
-    if not card_number.isdigit() or len(card_number) != 16:
-        flash("Numéro de carte invalide. Il doit contenir exactement 16 chiffres.", "error")
-        return False
-    
-    if not verifNumCarte(card_number):
-        flash("Numéro de carte invalide. Le numéro ne respecte pas l'algorithme de Luhn.", "error")
-        return False
-
-    # Vérification de la date d'expiration
-    if not verifDateExpiration(expiry):
-        return False
-    
-    # Vérification du code CVV
-    if not cvv.isdigit() or len(cvv) != 3:
-        flash("Code CVV invalide. Il doit contenir exactement 3 chiffres.", "error")
-        return False
-
-    return True
-
-def verifNumCarte(numero_carte):
-    """Vérifie si un numéro de carte est mathématiquement valide (Algorithme de Luhn)."""
-    somme = 0
-    alterne = False
-    
-    # On parcourt les chiffres en partant de la fin
-    for chiffre in reversed(numero_carte):
-        num = int(chiffre)
-        if alterne:
-            num *= 2
-            if num > 9:
-                num -= 9
-        somme += num
-        alterne = not alterne
-        
-    return (somme % 10 == 0)
-
-def verifDateExpiration(expiry):
-    if not expiry or '/' not in expiry:
-        flash("Format de date d'expiration invalide (attendu: MM/AA).", "error")
-        return False
-    
-    parts = expiry.split('/')
-    month = int(parts[0])
-    year = int(parts[1]) + 2000 # On transforme '26' en '2026' pour comparer les dates
-
-    # Validation du mois et vérification que la carte n'est pas expirée
-    current_year = datetime.now().year
-    current_month = datetime.now().month
-
-    if month < 1 or month > 12:
-        flash("Date d'expiration invalide (MM/AA).", "error")
-        return False
-    
-    if year < current_year or (year == current_year and month < current_month):
-        flash("La carte bancaire est expirée.", "error")
-        return False
-
-    return True
 
 if __name__ == '__main__':
     app.run(debug=False)
