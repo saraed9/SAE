@@ -39,12 +39,14 @@
                 <form action="/register" method="POST">
                     <div class="form-group">
                         <label class="label">Adresse Email</label>
-                        <input type="email" name="email" placeholder="exemple@mail.com" class="input" required>
+                        <input type="email" name="email" placeholder="exemple@mail.com" class="input" 
+                            value="{{ form_data.email if form_data else '' }}" required>
                     </div>
 
                     <div class="form-group">
                         <label class="label">Mot de passe</label>
-                        <input type="password" name="password" placeholder="••••••••" class="input" required>
+                        <input type="password" name="password" placeholder="••••••••" class="input" 
+                            value="{{ form_data.password if form_data else '' }}" required>
                         <div class="password-hint">
                             💡 Doit contenir au moins 12 caractères, une majuscule, un chiffre et un caractère spécial.
                         </div>
