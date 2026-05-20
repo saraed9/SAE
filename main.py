@@ -160,7 +160,7 @@ def panier():
         flash("Vous devez être connecté pour accéder à votre panier", "info")
         return redirect('/login')
     
-    panier = PanierItem.getPanierComplet(session['user_id'])
+    panier = PanierItem.get_panier_complet(session['user_id'])
     return render_template('panier.html', items=panier['items'], total=panier['montant_total'])
 
 @app.route('/panier/ajouter/<int:spectacle_id>')
@@ -218,7 +218,7 @@ def paiement():
         flash("Vous devez être connecté pour payer", "info")
         return redirect('/login')
 
-    panier = PanierItem.getPanierComplet(session['user_id'])
+    panier = PanierItem.get_panier_complet(session['user_id'])
     if not panier:
         flash("Votre panier est vide", "info")
         return redirect('/panier')

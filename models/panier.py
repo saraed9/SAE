@@ -17,7 +17,7 @@ class PanierItem(db.Model):
         self.quantite = quantite
     
     @classmethod
-    def getPanierComplet(self, user_id):
+    def get_panier_complet(self, user_id):
         """Calcule les totaux et extrait les détails du panier d'un utilisateur."""
         from models.spectacle import Spectacle  # Évite les imports circulaires
         
