@@ -32,7 +32,7 @@ limiter = Limiter(
     storage_uri="memory://"     # stockage en mémoire vive du serveur
 )
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:postgres123@localhost/tickets_spectacle'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Postgres113@localhost/Spectra'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.urandom(32).hex()
 
