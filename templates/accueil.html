@@ -7,23 +7,23 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='accueil.css') }}">
     </head>
     <body>
-        <!-- Barre de navigation -->
+        <!-- Barre de navigation (main.css) -->
         <nav class="navbar">
             <div class="container nav-content">
-                <a href="/" class="btn btn-nav">🏠 Accueil</a>
-                <div style="display: flex; gap: 1rem;">
+                <a href="/" class="btn btn-nav">Accueil</a>
+                <div class="nav-right-group">
                     {% if session.get('user_id') %}
-                    <a href="/panier" class="btn btn-nav">🛒 Panier</a>
+                    <a href="/panier" class="btn btn-nav">Panier</a>
                     {% endif %}
                     <div class="group">
-                        <button class="btn btn-nav"><span>👤</span></button>
+                        <a href="" class="btn btn-nav"><span>Menu</span></a>
                         <div class="dropdown-menu">
                         {% if session.get('user_id') %}
-                            <a href="/profil" class="dropdown-item">👤 Profil</a>
-                            <a href="/logout" class="dropdown-item">🚪 Déconnexion</a>
+                            <a href="/profil" class="dropdown-item">Profil</a>
+                            <a href="/logout" class="dropdown-item">Déconnexion</a>
                         {% else %}
-                            <a href="/login" class="dropdown-item">👤 Connexion</a>
-                            <a href="/register" class="dropdown-item">📝 Inscription</a>
+                            <a href="/login" class="dropdown-item">Connexion</a>
+                            <a href="/register" class="dropdown-item">Inscription</a>
                         {% endif %}
                         </div>
                     </div>
@@ -31,7 +31,7 @@
             </div>
         </nav>
         
-        <!-- Hero Section -->
+        <!-- Contenu de la Page -->
         <section class="hero">
             <div class="container">
                 <h2>Découvrez les meilleurs spectacles</h2>
@@ -39,6 +39,7 @@
             </div>
         </section>
 
+        <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div class="flash-container">
@@ -48,8 +49,8 @@
             </div>
         {% endif %}
         {% endwith %}
-
-        <!-- Barre de recherche connectée -->
+        
+        <!-- Barre de recherche -->
         <div class="container">
             <form method="GET" action="/recherche" class="search-container">
                 <input type="text" name="q" placeholder="Rechercher un spectacle..." value="{{ query if query else '' }}">
@@ -57,22 +58,23 @@
             </form>
         </div>
 
+        <!-- Grille de spectacles -->
         <main class="container">
             {% if query and spectacles|length == 0 %}
-                <p style="color: #6b7280; text-align: center; margin-top: 2rem;">Aucun spectacle trouvé pour "{{ query }}".</p>
+                <p class="no-results">Aucun spectacle trouvé pour "{{ query }}".</p>
             {% endif %}
             <div class="grid">
                 {% for grand in spectacles %}
-                <a href="/spectacle/{{ grand.id }}" style="text-decoration: none; color: inherit;">
-                    <div class="card" style="cursor: pointer;">
+                <a href="/spectacle/{{ grand.id }}" class="card-link">
+                    <div class="card">
                         {% if grand.image %}
                             <img src="{{ grand.image }}" alt="{{ grand.nom }}">
                         {% else %}
                             <img src="https://via.placeholder.com/400x200?text=Pas+d'image" alt="Pas d'image">
                         {% endif %}
-                        <div style="padding: 1rem;">
-                            <h4 style="margin: 0 0 0.5rem 0; font-size: 1.2rem; font-weight: bold; color: #1f2937;">{{ grand.nom }}</h4>
-                            <p style="font-size: 0.875rem; color: #6b7280; line-height: 1.5;">{{ grand.description }}</p>
+                        <div class="card-body">
+                            <h4 class="card-title">{{ grand.nom }}</h4>
+                            <p class="card-description">{{ grand.description }}</p>
                         </div>
                     </div>
                 </a>

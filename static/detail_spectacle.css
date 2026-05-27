@@ -1,0 +1,154 @@
+/* --- Structure de la Grille --- */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 1rem 0;
+}
+
+/* --- Cartes de base --- */
+.card {
+    background: white;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+/* --- Structure et Conteneur principal --- */
+.spectacle-main-content {
+    padding-top: 1.5rem;
+}
+
+.section-title {
+    margin-bottom: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+.reviews-heading {
+    margin: 2rem 0 0.5rem 0;
+}
+
+.no-data-text {
+    color: #6b7280;
+}
+
+/* --- Header du Spectacle --- */
+.spectacle-header {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    align-items: flex-start;
+}
+
+.spectacle-cover {
+    width: 300px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 0.625rem;
+}
+
+.spectacle-info {
+    flex: 1;
+}
+
+.spectacle-title {
+    margin: 0 0 1rem 0;
+}
+
+.spectacle-description {
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+/* --- Cartes et Contenus internes --- */
+.card-inner-padding {
+    padding: 1rem;
+}
+
+.representation-title {
+    margin: 0 0 0.5rem 0;
+}
+
+.representation-meta {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin: 0.25rem 0;
+}
+
+.representation-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.representation-price {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #4f46e5;
+}
+
+/* --- Section des avis --- */
+.review-card {
+    margin-bottom: 1rem;
+}
+
+.review-text {
+    color: #374151;
+    margin: 0;
+}
+
+/* Messages flash spécifiques aux avis */
+.flash-review-msg {
+    margin: 0.5rem 0;
+}
+
+.error-msg {
+    color: red;
+}
+
+.success-msg {
+    color: green;
+}
+
+/* --- Formulaire d'avis --- */
+.review-form-card {
+    margin-top: 2rem;
+}
+
+.card-form-padding {
+    padding: 1.5rem;
+}
+
+.form-title {
+    margin: 0 0 1rem 0;
+}
+
+.review-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.btn-submit-review {
+    margin-top: 1rem;
+}
+
+.login-prompt-text {
+    color: #6b7280;
+    margin-top: 1rem;
+}
+
+.login-link {
+    color: #4f46e5;
+    text-decoration: none;
+}
+
+.login-link:hover {
+    text-decoration: underline;
+}

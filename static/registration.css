@@ -1,3 +1,4 @@
+/* --- Structure du formulaire d'inscription --- */
 .register-container {
     min-height: calc(100vh - 80px);
     display: flex;
@@ -6,6 +7,7 @@
     padding: 2rem;
     background-color: #f9fafb;
 }
+
 .register-card {
     background: white;
     padding: 2.5rem;
@@ -14,9 +16,42 @@
     width: 100%;
     max-width: 450px;
 }
+
+.register-title {
+    margin-top: 0;
+    margin-bottom: 2rem;
+}
+
 .password-hint {
     font-size: 0.75rem;
     color: #6b7280;
     margin-top: 0.5rem;
     line-height: 1.4;
+}
+
+/* --- Bouton d'envoi du formulaire --- */
+.btn-submit-register {
+    width: 100%;
+    justify-content: center;
+    margin-top: 1rem;
+    padding: 0.8rem;
+    box-sizing: border-box; /* Évite que le bouton ne déborde de la carte */
+}
+
+/* --- Footer du formulaire --- */
+.register-footer-text {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: #4b5563;
+}
+
+.register-link {
+    color: #4f46e5;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.register-link:hover {
+    text-decoration: underline;
 }

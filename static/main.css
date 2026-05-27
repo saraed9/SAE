@@ -12,6 +12,11 @@
     --destructive: #dc2626;
 }
 
+.nav-right-group {
+    display: flex;
+    gap: 1rem;
+}
+
 body {
     background-color: var(--background);
     color: #111827;

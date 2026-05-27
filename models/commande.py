@@ -8,6 +8,7 @@ class Commande(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     quantite = db.Column(db.Integer, nullable=False)
     montant_total = db.Column(db.Numeric(8, 2), nullable=False)
+    passe_le = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relations pour faciliter le code
     client = db.relationship('User', backref='mes_commandes')

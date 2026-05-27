@@ -4,28 +4,27 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Paiement</title>
-        <!-- On charge le général et le spécifique -->
         <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='paiement.css') }}">
     </head>
     <body>
-        <!-- Barre de navigation (main.css) -->
+        <!-- Barre de navigation (utilise main.css) -->
         <nav class="navbar">
             <div class="container nav-content">
-                <a href="/" class="btn btn-nav">🏠 Accueil</a>
-                <div style="display: flex; gap: 1rem;">
+                <a href="/" class="btn btn-nav">Accueil</a>
+                <div class="nav-right-group">
                     {% if session.get('user_id') %}
-                    <a href="/panier" class="btn btn-nav">🛒 Panier</a>
+                    <a href="/panier" class="btn btn-nav">Panier</a>
                     {% endif %}
                     <div class="group">
-                        <button class="btn btn-nav"><span>👤</span></button>
+                        <a href="" class="btn btn-nav"><span>Menu</span></a>
                         <div class="dropdown-menu">
                         {% if session.get('user_id') %}
-                            <a href="/profil" class="dropdown-item">👤 Profil</a>
-                            <a href="/logout" class="dropdown-item">🚪 Déconnexion</a>
+                            <a href="/profil" class="dropdown-item">Profil</a>
+                            <a href="/logout" class="dropdown-item">Déconnexion</a>
                         {% else %}
-                            <a href="/login" class="dropdown-item">👤 Connexion</a>
-                            <a href="/register" class="dropdown-item">📝 Inscription</a>
+                            <a href="/login" class="dropdown-item">Connexion</a>
+                            <a href="/register" class="dropdown-item">Inscription</a>
                         {% endif %}
                         </div>
                     </div>
@@ -33,19 +32,18 @@
             </div>
         </nav>
 
-        <!-- Contenu de la Page (Modal) -->
+        <!-- Contenu de la Page -->
         <div id="payment-modal" class="modal-overlay">
             
             <div class="payment-card">
-                <!-- Header -->
                 <div class="payment-header">
-                    <h2 style="margin: 0; font-size: 1.5rem;">Paiement </h2>
+                    <h2 class="payment-title">Paiement </h2>
                     <a href="/panier" class="close-btn">✕</a>
                 </div>
 
-                <!-- Formulaire -->
+                <!-- Formulaire de paiement -->
                 <form action="/paiement" method="POST" class="payment-body">
-                    <!-- Nom du titulaire -->
+                    <!-- Nom sur la carte -->
                     <div class="form-group">
                         <label for="card_name" class="label">Nom sur la carte</label>
                         <input type="text" id="card_name" name="card_name" placeholder="Nom" class="input" 
@@ -59,7 +57,7 @@
                             value="{{ form_data.card_number if form_data else '' }}" required>
                     </div>
 
-                    <!-- Grille Expiration + CVV -->
+                    <!-- Expiration et CVV -->
                     <div class="input-grid">
                         <div>
                             <label class="label">Expiration</label>
@@ -73,6 +71,7 @@
                         </div>
                     </div>
 
+                    <!-- Messages flash -->
                     {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         <div class="flash-container">

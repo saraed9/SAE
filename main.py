@@ -26,14 +26,6 @@ limiter = Limiter(
     storage_uri="memory://"     # stockage en mémoire vive du serveur
 )
 
-# Configuration du rate limiter pour limiter les requêtes par adresse IP
-limiter = Limiter(
-    get_remote_address,
-    app=app,
-    default_limits=["200 per day", "50 per hour"],
-    storage_uri="memory://"     # stockage en mémoire vive du serveur
-)
-
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Postgres113@localhost/Spectra'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.urandom(32).hex()
@@ -124,7 +116,11 @@ def profil():
     
     user = User.query.get(session['user_id'])
     commandes = Commande.get_by_user(session['user_id'])
-    return render_template('profil.html', user=user, orders=commandes)
+
+    tickets_par_commande = {}
+    for cmd in commandes:
+        tickets_par_commande[cmd.id] = Ticket.query.filter_by(commande_id=cmd.id).all()
+    return render_template('profil.html', user=user, commandes=commandes, tickets_par_commande=tickets_par_commande)
 
 @app.route('/spectacle/<int:id>')
 def detail_spectacle(id):
@@ -170,13 +166,17 @@ def ajouter_panier(spectacle_id):
         return redirect('/login')
     
     user_id = session['user_id']
+
+    tickets_deja_achetes = Ticket.count_by_user_and_spectacle(user_id, spectacle_id)
     item = PanierItem.query.filter_by(user_id=user_id, spectacle_id=spectacle_id).first()
+    quantite_panier = item.quantite if item else 0
+
+    if tickets_deja_achetes + quantite_panier >= 4:
+        flash("Vous ne pouvez pas avoir plus de 4 billets pour ce spectacle (achats passés inclus)", "error")
+        return redirect('/panier')
+    
     if item:
-        if item.quantite < 4:
-            item.quantite += 1
-        else:
-            flash("Vous ne pouvez pas ajouter plus de 4 billets pour ce spectacle", "error")
-            return redirect('/panier')
+        item.quantite += 1
     else:
         item = PanierItem(user_id=user_id, spectacle_id=spectacle_id, quantite=1)
         db.session.add(item)
@@ -219,7 +219,7 @@ def paiement():
         return redirect('/login')
 
     panier = PanierItem.get_panier_complet(session['user_id'])
-    if not panier:
+    if not panier or not panier['items_raw']:
         flash("Votre panier est vide", "info")
         return redirect('/panier')
     

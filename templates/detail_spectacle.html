@@ -4,25 +4,26 @@
         <meta charset="UTF-8">
         <title>{{ grand.nom }} - Spectra</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='accueil.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='detail_spectacle.css') }}">
     </head>
     <body>
+        <!-- Barre de navigation (utilise main.css) -->
         <nav class="navbar">
             <div class="container nav-content">
-                <a href="/" class="btn btn-nav">🏠 Accueil</a>
-                <div style="display: flex; gap: 1rem;">
+                <a href="/" class="btn btn-nav">Accueil</a>
+                <div class="nav-right-group">
                     {% if session.get('user_id') %}
-                    <a href="/panier" class="btn btn-nav">🛒 Panier</a>
+                    <a href="/panier" class="btn btn-nav">Panier</a>
                     {% endif %}
                     <div class="group">
-                        <button class="btn btn-nav"><span>👤</span></button>
+                        <a href="" class="btn btn-nav"><span>Menu</span></a>
                         <div class="dropdown-menu">
                         {% if session.get('user_id') %}
-                            <a href="/profil" class="dropdown-item">👤 Profil</a>
-                            <a href="/logout" class="dropdown-item">🚪 Déconnexion</a>
+                            <a href="/profil" class="dropdown-item">Profil</a>
+                            <a href="/logout" class="dropdown-item">Déconnexion</a>
                         {% else %}
-                            <a href="/login" class="dropdown-item">👤 Connexion</a>
-                            <a href="/register" class="dropdown-item">📝 Inscription</a>
+                            <a href="/login" class="dropdown-item">Connexion</a>
+                            <a href="/register" class="dropdown-item">Inscription</a>
                         {% endif %}
                         </div>
                     </div>
@@ -30,31 +31,30 @@
             </div>
         </nav>
 
-        <main class="container" style="padding-top: 2rem;">
+        <!-- Contenu de la Page -->
+        <main class="container spectacle-main-content">
             
-            <!-- Header du spectacle -->
-            <div style="display: flex; gap: 2rem; margin-bottom: 3rem; align-items: flex-start;">
+            <div class="spectacle-header">
                 {% if grand.image %}
-                    <img src="{{ grand.image }}" alt="{{ grand.nom }}" style="width: 300px; height: 200px; object-fit: cover; border-radius: 0.625rem;">
+                    <img src="{{ grand.image }}" alt="{{ grand.nom }}" class="spectacle-cover">
                 {% endif %}
-                <div>
-                    <h2 style="margin: 0 0 1rem 0;">{{ grand.nom }}</h2>
-                    <p style="color: #6b7280; line-height: 1.6;">{{ grand.description }}</p>
+                <div class="spectacle-info">
+                    <h2 class="spectacle-title">{{ grand.nom }}</h2>
+                    <p class="spectacle-description">{{ grand.description }}</p>
                 </div>
             </div>
 
-            <!-- Dates disponibles -->
-            <h3 style="margin-bottom: 1rem;">📅 Dates disponibles</h3>
+            <h3 class="section-title">📅 Dates disponibles</h3>
             {% if representations %}
             <div class="grid">
                 {% for s in representations %}
                 <div class="card">
-                    <div style="padding: 1rem;">
-                        <h4 style="margin: 0 0 0.5rem 0;">{{ s.titre }}</h4>
-                        <p style="color: #6b7280; font-size: 0.875rem;">📅 {{ s.date }}</p>
-                        <p style="color: #6b7280; font-size: 0.875rem;">📍 {{ s.lieu }}</p>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
-                            <span style="font-size: 1.2rem; font-weight: bold; color: #4f46e5;">{{ s.prix }} €</span>
+                    <div class="card-inner-padding">
+                        <h4 class="representation-title">{{ s.titre }}</h4>
+                        <p class="representation-meta">📅 {{ s.date }}</p>
+                        <p class="representation-meta">📍 {{ s.lieu }}</p>
+                        <div class="representation-footer">
+                            <span class="representation-price">{{ s.prix }} €</span>
                             <a href="/panier/ajouter/{{ s.id }}" class="btn btn-primary">Réserver</a>
                         </div>
                     </div>
@@ -62,50 +62,50 @@
                 {% endfor %}
             </div>
             {% else %}
-                <p style="color: #6b7280;">Aucune représentation disponible.</p>
+                <p class="no-data-text">Aucune représentation disponible.</p>
             {% endif %}
 
-            <!-- Avis -->
-            <h3 style="margin: 3rem 0 1rem 0;">💬 Avis des spectateurs</h3>
-
+            <!-- Messages Flash -->
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% for category, message in messages %}
-                    <p style="color: {% if category == 'error' %}red{% else %}green{% endif %};">{{ message }}</p>
+                    <p class="flash-review-msg {% if category == 'error' %}error-msg{% else %}success-msg{% endif %}">{{ message }}</p>
                 {% endfor %}
             {% endwith %}
 
+            <!-- Avis -->
+            <h3 class="section-title reviews-heading">💬 Avis des spectateurs</h3>
             {% if avis %}
                 {% for a in avis %}
-                <div class="card" style="margin-bottom: 1rem;">
-                    <div style="padding: 1rem;">
-                        <p style="color: #374151; margin: 0;">{{ a.commentaire }}</p>
+                <div class="card review-card">
+                    <div class="card-inner-padding">
+                        <p class="review-text">{{ a.commentaire }}</p>
                     </div>
                 </div>
                 {% endfor %}
             {% else %}
-                <p style="color: #6b7280;">Aucun avis pour ce spectacle.</p>
+                <p class="no-data-text">Aucun avis pour ce spectacle.</p>
             {% endif %}
 
-            <!-- Formulaire ajouter un avis -->
+            <!-- Laisser un avis -->
             {% if session.get('user_id') %}
-            <div class="card" style="margin-top: 2rem;">
-                <div style="padding: 1.5rem;">
-                    <h4 style="margin: 0 0 1rem 0;">✍️ Laisser un avis</h4>
+            <div class="card review-form-card">
+                <div class="card-form-padding">
+                    <h4 class="form-title">✍️ Laisser un avis</h4>
                     <form method="POST" action="/avis/ajouter/{{ grand.id }}">
                         <textarea 
                             name="commentaire" 
                             placeholder="Votre commentaire (3 à 900 caractères)..." 
                             maxlength="900"
                             required
-                            style="width: 100%; min-height: 100px; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 1rem; resize: vertical; box-sizing: border-box;"
+                            class="review-textarea"
                         ></textarea>
-                        <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Publier</button>
+                        <button type="submit" class="btn btn-primary btn-submit-review">Publier</button>
                     </form>
                 </div>
             </div>
             {% else %}
-                <p style="color: #6b7280; margin-top: 1rem;">
-                    <a href="/login" style="color: #4f46e5;">Connectez-vous</a> pour laisser un avis.
+                <p class="login-prompt-text">
+                    <a href="/login" class="login-link">Connectez-vous</a> pour laisser un avis.
                 </p>
             {% endif %}
 

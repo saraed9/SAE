@@ -3,28 +3,27 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Mon Profil</title>
+        <title>Mon Profil - Spectra Billetterie</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='profil.css') }}">
     </head>
     <body>
-        <!-- Barre de navigation (main.css) -->
         <nav class="navbar">
             <div class="container nav-content">
-                <a href="/" class="btn btn-nav">🏠 Accueil</a>
-                <div style="display: flex; gap: 1rem;">
+                <a href="/" class="btn btn-nav">Accueil</a>
+                <div class="nav-right-group">
                     {% if session.get('user_id') %}
-                    <a href="/panier" class="btn btn-nav">🛒 Panier</a>
+                    <a href="/panier" class="btn btn-nav">Panier</a>
                     {% endif %}
                     <div class="group">
-                        <button class="btn btn-nav"><span>👤</span></button>
+                        <a href="" class="btn btn-nav"><span>Menu</span></a>
                         <div class="dropdown-menu">
                         {% if session.get('user_id') %}
-                            <a href="/profil" class="dropdown-item">👤 Profil</a>
-                            <a href="/logout" class="dropdown-item">🚪 Déconnexion</a>
+                            <a href="/profil" class="dropdown-item">Profil</a>
+                            <a href="/logout" class="dropdown-item">Déconnexion</a>
                         {% else %}
-                            <a href="/login" class="dropdown-item">👤 Connexion</a>
-                            <a href="/register" class="dropdown-item">📝 Inscription</a>
+                            <a href="/login" class="dropdown-item">Connexion</a>
+                            <a href="/register" class="dropdown-item">Inscription</a>
                         {% endif %}
                         </div>
                     </div>
@@ -33,51 +32,72 @@
         </nav>
 
         <div class="container">
-            <h2 style="margin-top: 2rem; font-size: 2rem;">Mon Compte</h2>
+            <h2 class="profil-main-title">Mon Compte</h2>
 
-            <div class="profile-grid">
-                <!-- Sidebar : Infos -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="profil-grid">
                 <aside class="space-y-6">
-                    <div class="profile-card" style="text-align: center;">
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">👤</div>
-                        <p style="color: #4f46e5; font-weight: 500;">{{ user.email }}</p>
+                    <div class="profil-card profil-card-centered">
+                        <div class="profil-avatar">👤</div>
+                        <p class="profil-email">{{ user.email }}</p>
                     </div>
 
-                    <div class="profile-card">
-                        <h4 style="margin-top: 0;">Statistiques</h4>
+                    <div class="profil-card">
+                        <h4 class="stat-title">Statistiques</h4>
                         <div class="stat-item">
-                            <span>Commandes</span>
-                            <span style="font-weight: bold; color: #4f46e5;">{{ orders|length }}</span>
+                            <span>Commandes validées</span>
+                            <span class="stat-count">{{ commandes|length }}</span>
                         </div>
                     </div>
                 </aside>
 
-                <!-- Main : Historique -->
-                <main class="profile-card">
-                    <h3 style="margin-top: 0; margin-bottom: 1.5rem;">Historique des commandes</h3>
+                <main class="profil-card">
+                    <h3 class="history-title">Historique des achats</h3>
                     
                     <div class="orders-list">
-                        {% for order in orders %}
-                        <div class="order-card">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                                <div>
-                                    <h4 style="margin: 0;">Commande #{{ order.id }}</h4>
-                                    <p style="font-size: 0.875rem; color: #6b7280;">{{ order.date }}</p>
+                        {% if not commandes %}
+                            <p class="empty-history">Aucun achat enregistré pour le moment.</p>
+                        {% else %}
+                            {% for cmd in commandes %}
+                            <div class="order-card">
+                                <div class="order-header">
+                                    <div>
+                                        <h4 class="order-title">Facture Réf : {{ cmd.reference }}</h4>
+                                        <p class="order-date">
+                                            Acheté le : {{ cmd.passe_le.strftime('%d/%m/%Y') }}
+                                        </p>
+                                    </div>
+                                    <div class="order-price">{{ cmd.montant_total }}€</div>
                                 </div>
-                                <div style="font-size: 1.25rem; font-weight: bold; color: #4f46e5;">{{ order.total }}€</div>
-                            </div>
-                            
-                            <div style="margin: 1rem 0;">
-                                <span class="badge-status">{{ order.status }}</span>
-                            </div>
+                                
+                                <p class="order-qty">
+                                    <strong>Places commandées :</strong> {{ cmd.quantite }}
+                                </p>
 
-                            <div class="order-actions">
-                                <button class="btn btn-primary" style="font-size: 0.75rem; padding: 0.5rem;">Détails</button>
-                                <button class="btn" style="font-size: 0.75rem; padding: 0.5rem; border: 1px solid var(--border);">Billets</button>
-                                <button class="btn" style="font-size: 0.75rem; padding: 0.5rem; border: 1px solid var(--border);">Facture</button>
+                                <h4 class="tickets-section-title">🎟️ Tickets :</h4>
+                        
+                                <div class="tickets-liste">
+                                    {% for ticket in tickets_par_commande[cmd.id] %}
+                                        <div class="ticket-item">
+                                            <span class="ticket-info">Spectacle : {{ ticket.spectacle.titre }}</span>
+                                            <span class="ticket-info">Date : {{ ticket.spectacle.date.strftime('%d/%m/%Y') }}</span>
+                                            <span class="ticket-info">Lieu : {{ ticket.spectacle.lieu }}</span>
+                                            <span class="ticket-info">Prix : {{ ticket.spectacle.prix }}€</span>
+                                            
+                                            <div class="ticket-id-badge">N° : #{{ ticket.id }}</div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
                             </div>
-                        </div>
-                        {% endfor %}
+                            {% endfor %}
+                        {% endif %}
                     </div>
                 </main>
             </div>
