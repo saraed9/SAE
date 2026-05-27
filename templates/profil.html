@@ -86,7 +86,7 @@
                                 <div class="tickets-liste">
                                     {% for ticket in tickets_par_commande[cmd.id] %}
                                         <div class="ticket-item">
-                                            <span class="ticket-info">Spectacle : {{ ticket.spectacle.titre }}</span>
+                                            <span class="ticket-title">Spectacle : {{ ticket.spectacle.titre }}</span>
                                             <span class="ticket-info">Date : {{ ticket.spectacle.date.strftime('%d/%m/%Y') }}</span>
                                             <span class="ticket-info">Lieu : {{ ticket.spectacle.lieu }}</span>
                                             <span class="ticket-info">Prix : {{ ticket.spectacle.prix }}€</span>

@@ -151,6 +151,12 @@
     letter-spacing: 0.5px;
 }
 
+.ticket-title {
+    color: #4b5563;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
 .ticket-id-badge {
     font-family: monospace;
     font-size: 0.8rem;
