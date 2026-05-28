@@ -29,7 +29,7 @@ limiter = Limiter(
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:postgres123@localhost/tickets_spectacle'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')  # Utiliser une variable d'environnement pour la clé secrète en production
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY','fcd4ca06371442fad324310cf5032827b850643fc9def1af34c7b83341948d0f')  # Utiliser une variable d'environnement pour la clé secrète en production
 if not app.config['SECRET_KEY']:
     raise RuntimeError("SECRET_KEY non definie.")
 
