@@ -8,7 +8,7 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='panier.css') }}">
     </head>
     <body>
-        <!-- Barre de navigation (utilise main.css) -->
+        <!-- Barre de navigation -->
         <nav class="navbar">
             <div class="container nav-content">
                 <a href="/" class="btn btn-nav">Accueil</a>
@@ -32,7 +32,7 @@
             </div>
         </nav>
 
-        <!-- Flash Messages -->
+        <!-- Messages flash -->
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div class="flash-container">
@@ -50,7 +50,6 @@
             <h2 class="cart-main-title">Mon Panier</h2>
 
             <div class="cart-grid">
-                <!-- Liste des éléments du panier -->
                 <div class="cart-items-list">
                     {% for item in items %}
                     <div class="cart-item">
@@ -60,30 +59,29 @@
                             <p>Lieu : {{ item.location }}</p>
                             
                             <div class="quantity-controls">
-    <span class="qty-label">Quantité :</span>
-    <form method="POST" action="/panier/diminuer/{{ item.id }}" style="display:inline;">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="btn-qty">-</button>
-    </form>
-    <span class="font-bold">{{ item.quantity }}</span>
-    <form method="POST" action="/panier/ajouter/{{ item.id }}" style="display:inline;">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="btn-qty">+</button>
-    </form>
-</div>
-                        
+                                <span class="qty-label">Quantité :</span>
+                                <form method="POST" action="/panier/diminuer/{{ item.id }}" style="display:inline;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn-qty">-</button>
+                                </form>
+                                <span class="font-bold">{{ item.quantity }}</span>
+                                <form method="POST" action="/panier/ajouter/{{ item.id }}" style="display:inline;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn-qty">+</button>
+                                </form>
+                            </div>
+                        </div> 
                         <div class="item-side-actions">
-                           <form method="POST" action="/panier/supprimer/{{ item.id }}" style="display:inline;">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <button type="submit" class="btn-suppr">Supprimer</button>
-</form>
+                            <form method="POST" action="/panier/supprimer/{{ item.id }}" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn-suppr">Supprimer</button>
+                            </form>
                             <div class="item-subtotal">{{ item.subtotal }}€</div>
                         </div>
-                    </div>
-                    {% endfor %}
+                    </div> {% endfor %}
                 </div>
 
-                <!-- Récapitulatif et bouton de paiement -->
+                <!-- Récapitulatif -->
                 <aside class="summary-card">
                     <h3 class="summary-title">Récapitulatif</h3>
                     <div class="summary-row">
