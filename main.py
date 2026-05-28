@@ -27,7 +27,7 @@ limiter = Limiter(
     storage_uri="memory://"     # stockage en mémoire vive du serveur
 )
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:postgres123@localhost/tickets_spectacle'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Postgres113@localhost/Spectra'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')  # Utiliser une variable d'environnement pour la clé secrète en production
 if not app.config['SECRET_KEY']:
@@ -289,4 +289,4 @@ def confirmation():
 
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)
