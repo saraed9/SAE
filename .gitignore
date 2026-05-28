@@ -1,0 +1,8 @@
+# Cache Python
+__pycache__/
+*.pyc
+
+# Fichiers temporaires d'éditeurs
+.vscode/
+.idea/
+tempCodeRunnerFile.py
