@@ -44,15 +44,15 @@
                 </div>
             </div>
 
-            <h3 class="section-title">📅 Dates disponibles</h3>
+            <h3 class="section-title">Dates disponibles</h3>
             {% if representations %}
             <div class="grid">
                 {% for s in representations %}
                 <div class="card">
                     <div class="card-inner-padding">
                         <h4 class="representation-title">{{ s.titre }}</h4>
-                        <p class="representation-meta"> {{ s.date }}</p>
-                        <p class="representation-meta"> {{ s.lieu }}</p>
+                        <p class="representation-meta"> 📅 {{ s.date }}</p>
+                        <p class="representation-meta"> 📍 {{ s.lieu }}</p>
                         <div class="representation-footer">
                             <span class="representation-price">{{ s.prix }} €</span>
                             <form method="POST" action="/panier/ajouter/{{ s.id }}">
