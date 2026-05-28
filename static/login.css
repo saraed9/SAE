@@ -1,3 +1,4 @@
+/* --- Écran et Carte de Connexion --- */
 .login-screen {
     min-height: calc(100vh - 70px); /* Hauteur écran moins la navbar */
     display: flex;
@@ -16,6 +17,51 @@
     box-shadow: var(--shadow);
 }
 
+.login-title {
+    margin-top: 0;
+    margin-bottom: 2rem;
+}
+
+/* --- Lien mot de passe oublié --- */
+.forgot-password-link {
+    font-size: 0.675rem;
+    color: #4f46e5;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 0.5rem;
+}
+
+.forgot-password-link:hover {
+    text-decoration: underline;
+}
+
+/* --- Bouton d'envoi de connexion --- */
+.btn-submit-login {
+    width: 100%;
+    justify-content: center;
+    padding: 1rem;
+    box-sizing: border-box; /* Garantit que le bouton reste dans la carte */
+}
+
+/* --- Bas de la carte (Redirection Inscription) --- */
+.login-footer-text {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: #4b5563;
+}
+
+.register-link {
+    color: #4f46e5;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.register-link:hover {
+    text-decoration: underline;
+}
+
+/* --- Lien de retour existant --- */
 .back-link {
     display: flex;
     align-items: center;

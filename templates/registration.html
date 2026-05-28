@@ -3,28 +3,27 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Inscription</title>
+        <title>Inscription - Spectra Billetterie</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='registration.css') }}">
     </head>
     <body>
-        <!-- Barre de navigation (main.css) -->
         <nav class="navbar">
             <div class="container nav-content">
-                <a href="/" class="btn btn-nav">🏠 Accueil</a>
-                <div style="display: flex; gap: 1rem;">
+                <a href="/" class="btn btn-nav">Accueil</a>
+                <div class="nav-right-group">
                     {% if session.get('user_id') %}
-                    <a href="/panier" class="btn btn-nav">🛒 Panier</a>
+                    <a href="/panier" class="btn btn-nav">Panier</a>
                     {% endif %}
                     <div class="group">
-                        <button class="btn btn-nav"><span>👤</span></button>
+                        <a href="" class="btn btn-nav"><span>Menu</span></a>
                         <div class="dropdown-menu">
                         {% if session.get('user_id') %}
-                            <a href="/profil" class="dropdown-item">👤 Profil</a>
-                            <a href="/logout" class="dropdown-item">🚪 Déconnexion</a>
+                            <a href="/profil" class="dropdown-item">Profil</a>
+                            <a href="/logout" class="dropdown-item">Déconnexion</a>
                         {% else %}
-                            <a href="/login" class="dropdown-item">👤 Connexion</a>
-                            <a href="/register" class="dropdown-item">📝 Inscription</a>
+                            <a href="/login" class="dropdown-item">Connexion</a>
+                            <a href="/register" class="dropdown-item">Inscription</a>
                         {% endif %}
                         </div>
                     </div>
@@ -34,7 +33,7 @@
 
         <div class="register-container">
             <div class="register-card">
-                <h2 style="margin-bottom: 2rem;">Créer un compte</h2>
+                <h2 class="register-title">Créer un compte</h2>
 
                 <form action="/register" method="POST">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -58,19 +57,19 @@
                         <div class="flash-container">
                         {% for category, message in messages %}
                             <div class="flash {{ category }}">
-                            {{ message }}
+                                {{ message }}
                             </div>
                         {% endfor %}
                         </div>
                     {% endif %}
                     {% endwith %}
 
-                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 1rem; padding: 0.8rem;">
+                    <button type="submit" class="btn btn-primary btn-submit-register">
                         S'inscrire
                     </button>
 
-                    <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: #4b5563;">
-                        Déjà un compte ? <a href="/login" style="color: #4f46e5; font-weight: 600;">Se connecter</a>
+                    <p class="register-footer-text">
+                        Déjà un compte ? <a href="/login" class="register-link">Se connecter</a>
                     </p>
                 </form>
             </div>

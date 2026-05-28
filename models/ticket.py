@@ -1,3 +1,5 @@
+from models.commande import Commande
+
 from .extensions import db
 
 class Ticket(db.Model):
@@ -20,3 +22,10 @@ class Ticket(db.Model):
             tickets.append(t)
         db.session.commit()
         return tickets
+    
+    @staticmethod
+    def count_by_user_and_spectacle(user_id, spectacle_id):
+        return db.session.query(Ticket).join(Commande).filter(
+            Commande.user_id == user_id,
+            Ticket.spectacle_id == spectacle_id
+        ).count()

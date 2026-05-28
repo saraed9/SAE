@@ -2,6 +2,7 @@
 <html lang="fr">
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Confirmation de commande</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='confirmation.css') }}">
@@ -10,20 +11,20 @@
         <!-- Barre de navigation (utilise main.css) -->
         <nav class="navbar">
             <div class="container nav-content">
-                <a href="/" class="btn btn-nav">🏠 Accueil</a>
-                <div style="display: flex; gap: 1rem;">
+                <a href="/" class="btn btn-nav">Accueil</a>
+                <div class="nav-right-group">
                     {% if session.get('user_id') %}
-                    <a href="/panier" class="btn btn-nav">🛒 Panier</a>
+                    <a href="/panier" class="btn btn-nav">Panier</a>
                     {% endif %}
                     <div class="group">
-                        <button class="btn btn-nav"><span>👤</span></button>
+                        <a href="" class="btn btn-nav"><span>Menu</span></a>
                         <div class="dropdown-menu">
                         {% if session.get('user_id') %}
-                            <a href="/profil" class="dropdown-item">👤 Profil</a>
-                            <a href="/logout" class="dropdown-item">🚪 Déconnexion</a>
+                            <a href="/profil" class="dropdown-item">Profil</a>
+                            <a href="/logout" class="dropdown-item">Déconnexion</a>
                         {% else %}
-                            <a href="/login" class="dropdown-item">👤 Connexion</a>
-                            <a href="/register" class="dropdown-item">📝 Inscription</a>
+                            <a href="/login" class="dropdown-item">Connexion</a>
+                            <a href="/register" class="dropdown-item">Inscription</a>
                         {% endif %}
                         </div>
                     </div>
@@ -31,9 +32,9 @@
             </div>
         </nav>
 
-        <!-- Contenu de la Page (utilise confirmation.css) -->
+        <!-- Contenu de la Page -->
         <div class="confirmation-wrapper">
-
+            <!-- Messages Flash -->
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 <div class="flash-container">
@@ -46,36 +47,33 @@
             {% endif %}
             {% endwith %}
             
-            <!-- Message de succès -->
             <div class="success-card">
-                <h2 style="font-size: 1.8rem; margin: 0;">Merci pour votre commande {{ order.id }} !</h2>
+                <h2 class="success-title">Merci pour votre commande {{ order.reference }} !</h2>
             </div>
 
-            <!-- Facture -->
             <div class="invoice-box">
                 <h3 class="invoice-header">FACTURE</h3>
                 
+                <!-- Détails de la commande -->
                 {% for ticket in details %}
                 <div class="item-row">
                     <div class="item-details">
                         <h5>{{ ticket.spectacle.titre }}</h5>
                         <p>{{ ticket.spectacle.date }} - {{ ticket.spectacle.lieu }}</p>
                     </div>
-                    <div style="text-align: right;">
-                        <p style="margin: 0; font-weight: 600;">Qté: {{ ticket.quantite }}</p>
-                        <p style="margin: 0; font-weight: bold; color: #4f46e5;">{{ ticket.sous_total }}€</p>
+                    <div class="item-pricing">
+                        <p class="item-qty">Qté: {{ ticket.quantite }}</p>
+                        <p class="item-subtotal">{{ ticket.sous_total }}€</p>
                     </div>
                 </div>
                 {% endfor %}
 
-                <!-- Totaux -->
                 <div class="grand-total">
                     Total : {{ order.montant_total }}€
                 </div>
 
-                <!-- Boutons d'action -->
                 <div class="action-btns">
-                    <a href="/" class="btn" style="flex: 1; justify-content: center; border: 1px solid var(--border);">Retour à l'accueil</a>
+                    <a href="/" class="btn btn-back-home">Retour à l'accueil</a>
                 </div>
             </div>
         </div>

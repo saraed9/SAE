@@ -11,20 +11,20 @@
         <!-- Barre de navigation (main.css) -->
         <nav class="navbar">
             <div class="container nav-content">
-                <a href="/" class="btn btn-nav">🏠 Accueil</a>
-                <div style="display: flex; gap: 1rem;">
+                <a href="/" class="btn btn-nav">Accueil</a>
+                <div class="nav-right-group">
                     {% if session.get('user_id') %}
-                    <a href="/panier" class="btn btn-nav">🛒 Panier</a>
+                    <a href="/panier" class="btn btn-nav">Panier</a>
                     {% endif %}
                     <div class="group">
-                        <button class="btn btn-nav"><span>👤</span></button>
+                        <a href="" class="btn btn-nav"><span>Menu</span></a>
                         <div class="dropdown-menu">
                         {% if session.get('user_id') %}
-                            <a href="/profil" class="dropdown-item">👤 Profil</a>
-                            <a href="/logout" class="dropdown-item">🚪 Déconnexion</a>
+                            <a href="/profil" class="dropdown-item">Profil</a>
+                            <a href="/logout" class="dropdown-item">Déconnexion</a>
                         {% else %}
-                            <a href="/login" class="dropdown-item">👤 Connexion</a>
-                            <a href="/register" class="dropdown-item">📝 Inscription</a>
+                            <a href="/login" class="dropdown-item">Connexion</a>
+                            <a href="/register" class="dropdown-item">Inscription</a>
                         {% endif %}
                         </div>
                     </div>
@@ -35,7 +35,7 @@
         <!-- Contenu de la Page -->
         <div class="login-screen">
             <div class="login-card">
-                <h2 style="margin-bottom: 2rem;">Connexion</h2>
+                <h2 class="login-title">Connexion</h2>
 
                 <form action="/login" method="POST">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -46,14 +46,15 @@
                             value="{{ form_data.email if form_data else '' }}" required>
                     </div>
 
-                    <!-- Champ Mot de passe -->
+                    <!-- mot de passe -->
                     <div class="form-group">
                         <label class="label">Mot de passe</label>
                         <input type="password" name="password" placeholder="••••••••" class="input" 
                             value="{{ form_data.password if form_data else '' }}" required>
-                        <a href="/forgot_password" style="font-size: 0.675rem; color: #4f46e5; text-decoration: none;">Mot de passe oublié ?</a>
+                        <a href="/forgot_password" class="forgot-password-link">Mot de passe oublié ?</a>
                     </div>
 
+                    <!-- Messages flash -->
                     {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         <div class="flash-container">
@@ -66,13 +67,13 @@
                     {% endif %}
                     {% endwith %}
 
-                    <!-- Bouton Submit -->
-                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 1rem;">
+                    <!-- Bouton de connexion -->
+                    <button type="submit" class="btn btn-primary btn-submit-login">
                         Se connecter
                     </button>
                 </form>
-                <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: #4b5563;">
-                    Pas encore de compte ? <a href="/register" style="color: #4f46e5; font-weight: 600;">S'inscrire</a>
+                <p class="login-footer-text">
+                    Pas encore de compte ? <a href="/register" class="register-link">S'inscrire</a>
                 </p>
             </div>
         </div>

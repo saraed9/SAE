@@ -8,23 +8,23 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='panier.css') }}">
     </head>
     <body>
-        <!-- Barre de navigation (main.css) -->
+        <!-- Barre de navigation (utilise main.css) -->
         <nav class="navbar">
             <div class="container nav-content">
-                <a href="/" class="btn btn-nav">🏠 Accueil</a>
-                <div style="display: flex; gap: 1rem;">
+                <a href="/" class="btn btn-nav">Accueil</a>
+                <div class="nav-right-group">
                     {% if session.get('user_id') %}
-                    <a href="/panier" class="btn btn-nav">🛒 Panier</a>
+                    <a href="/panier" class="btn btn-nav">Panier</a>
                     {% endif %}
                     <div class="group">
-                        <button class="btn btn-nav"><span>👤</span></button>
+                        <a href="" class="btn btn-nav"><span>Menu</span></a>
                         <div class="dropdown-menu">
                         {% if session.get('user_id') %}
-                            <a href="/profil" class="dropdown-item">👤 Profil</a>
-                            <a href="/logout" class="dropdown-item">🚪 Déconnexion</a>
+                            <a href="/profil" class="dropdown-item">Profil</a>
+                            <a href="/logout" class="dropdown-item">Déconnexion</a>
                         {% else %}
-                            <a href="/login" class="dropdown-item">👤 Connexion</a>
-                            <a href="/register" class="dropdown-item">📝 Inscription</a>
+                            <a href="/login" class="dropdown-item">Connexion</a>
+                            <a href="/register" class="dropdown-item">Inscription</a>
                         {% endif %}
                         </div>
                     </div>
@@ -32,6 +32,7 @@
             </div>
         </nav>
 
+        <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div class="flash-container">
@@ -43,21 +44,23 @@
             </div>
         {% endif %}
         {% endwith %}
-
+        
+        <!-- Contenu de la Page -->
         <div class="container">
-            <h2 style="margin-top: 2rem; font-size: 2rem;">Mon Panier</h2>
+            <h2 class="cart-main-title">Mon Panier</h2>
 
             <div class="cart-grid">
-                <!-- Liste des articles -->
+                <!-- Liste des éléments du panier -->
                 <div class="cart-items-list">
                     {% for item in items %}
                     <div class="cart-item">
                         <div class="item-main">
-                            <h3>{{ item.title }}</h3>
+                            <h3>{{ item.titre }}</h3>
                             <p>Date : {{ item.date }}</p>
+                            <p>Lieu : {{ item.location }}</p>
                             
                             <div class="quantity-controls">
-    <span style="font-size: 0.9rem;">Quantité :</span>
+    <span class="qty-label">Quantité :</span>
     <form method="POST" action="/panier/diminuer/{{ item.id }}" style="display:inline;">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button type="submit" class="btn-qty">-</button>
@@ -69,25 +72,25 @@
     </form>
 </div>
                         
-                        <div style="text-align: right; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div class="item-side-actions">
                            <form method="POST" action="/panier/supprimer/{{ item.id }}" style="display:inline;">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <button type="submit" class="btn-suppr">Supprimer</button>
 </form>
-                            <div style="font-size: 1.5rem; font-weight: bold; color: #4f46e5;">{{ item.subtotal }}€</div>
+                            <div class="item-subtotal">{{ item.subtotal }}€</div>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
 
-                <!-- Récapitulatif -->
+                <!-- Récapitulatif et bouton de paiement -->
                 <aside class="summary-card">
-                    <h3 style="margin-top: 0;">Récapitulatif</h3>
+                    <h3 class="summary-title">Récapitulatif</h3>
                     <div class="summary-row">
                         <span>Total</span>
-                        <span style="color: #4f46e5;">{{ total }}€</span>
+                        <span class="summary-total-price">{{ total }}€</span>
                     </div>
-                    <a href="/paiement" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 1rem;">
+                    <a href="/paiement" class="btn btn-primary btn-submit-cart">
                         Passer au paiement
                     </a>
                 </aside>

@@ -1,3 +1,9 @@
+/* --- Titre principal --- */
+.cart-main-title {
+    margin-top: 2rem;
+    font-size: 2rem;
+}
+
 /* --- Mise en page Panier --- */
 .cart-grid {
     display: grid;
@@ -33,6 +39,10 @@
     margin-top: 1rem;
 }
 
+.qty-label {
+    font-size: 0.9rem;
+}
+
 .btn-qty {
     border: 1px solid var(--border);
     background: white;
@@ -44,6 +54,20 @@
 }
 
 .btn-qty:hover { background: #f9fafb; }
+
+/* --- Bloc Droite de la Carte Article --- */
+.item-side-actions {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.item-subtotal {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #4f46e5;
+}
 
 .btn-suppr {
     color: var(--destructive);
@@ -68,6 +92,10 @@
     top: 100px;
 }
 
+.summary-title {
+    margin-top: 0;
+}
+
 .summary-row {
     display: flex;
     justify-content: space-between;
@@ -75,4 +103,16 @@
     margin: 1.5rem 0;
     font-size: 1.25rem;
     font-weight: bold;
+}
+
+.summary-total-price {
+    color: #4f46e5;
+}
+
+/* --- Bouton de validation --- */
+.btn-submit-cart {
+    width: 100%;
+    justify-content: center;
+    padding: 1rem;
+    box-sizing: border-box; /* Évite que le bouton déborde de sa carte */
 }

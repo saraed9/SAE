@@ -1,8 +1,11 @@
+/* --- Structure globale --- */
 .confirmation-wrapper {
     max-width: 800px;
     margin: 3rem auto;
+    padding: 0 1rem; /* Sécurité pour les écrans mobiles */
 }
 
+/* --- Carte message succès --- */
 .success-card {
     background: white;
     padding: 2rem;
@@ -12,6 +15,12 @@
     margin-bottom: 2rem;
 }
 
+.success-title {
+    font-size: 1.8rem;
+    margin: 0;
+}
+
+/* --- Facture --- */
 .invoice-box {
     background: white;
     padding: 2.5rem;
@@ -24,11 +33,13 @@
     border-bottom: 2px solid var(--secondary);
     padding-bottom: 1rem;
     margin-bottom: 2rem;
+    margin-top: 0;
 }
 
 .item-row {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 1rem 0;
     border-bottom: 1px solid var(--border);
 }
@@ -36,6 +47,23 @@
 .item-details h5 { margin: 0; }
 .item-details p { margin: 0.2rem 0; color: #666; font-size: 0.9rem; }
 
+/* --- Bloc Tarification par article --- */
+.item-pricing {
+    text-align: right;
+}
+
+.item-qty {
+    margin: 0;
+    font-weight: 600;
+}
+
+.item-subtotal {
+    margin: 0;
+    font-weight: bold;
+    color: #4f46e5;
+}
+
+/* --- Affichage du Total Global --- */
 .grand-total {
     text-align: right;
     font-size: 1.8rem;
@@ -44,8 +72,15 @@
     margin-top: 2rem;
 }
 
+/* --- Actions du formulaire --- */
 .action-btns {
     display: flex;
     gap: 1rem;
     margin-top: 2.5rem;
+}
+
+.btn-back-home {
+    flex: 1;
+    justify-content: center;
+    border: 1px solid var(--border);
 }
