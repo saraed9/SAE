@@ -14,7 +14,8 @@ from models.commande import Commande
 from models.ticket import Ticket
 from models.panier import PanierItem
 from services.paiement import verifCarte
-
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 csrf = CSRFProtect(app) 
@@ -27,9 +28,9 @@ limiter = Limiter(
     storage_uri="memory://"     # stockage en mémoire vive du serveur
 )
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Postgres113@localhost/Spectra'
+app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql+psycopg2://postgres:{os.environ.get('DB_PASSWORD')}@localhost/tickets_spectacle"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY','fcd4ca06371442fad324310cf5032827b850643fc9def1af34c7b83341948d0f')  # Utiliser une variable d'environnement pour la clé secrète en production
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')   # Utiliser une variable d'environnement pour la clé secrète en production
 if not app.config['SECRET_KEY']:
     raise RuntimeError("SECRET_KEY non definie.")
 
@@ -289,4 +290,4 @@ def confirmation():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
