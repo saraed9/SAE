@@ -57,15 +57,23 @@
                             <p>Date : {{ item.date }}</p>
                             
                             <div class="quantity-controls">
-                                <span style="font-size: 0.9rem;">Quantité :</span>
-                                <a href="/panier/diminuer/{{ item.id }}" class="btn-qty">-</a>
-                                <span class="font-bold">{{ item.quantity }}</span>
-                                <a href="/panier/ajouter/{{ item.id }}" class="btn-qty">+</a>
-                            </div>
-                        </div>
+    <span style="font-size: 0.9rem;">Quantité :</span>
+    <form method="POST" action="/panier/diminuer/{{ item.id }}" style="display:inline;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn-qty">-</button>
+    </form>
+    <span class="font-bold">{{ item.quantity }}</span>
+    <form method="POST" action="/panier/ajouter/{{ item.id }}" style="display:inline;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn-qty">+</button>
+    </form>
+</div>
                         
                         <div style="text-align: right; display: flex; flex-direction: column; justify-content: space-between;">
-                            <a href="/panier/supprimer/{{ item.id }}" class="btn-suppr">Supprimer</a>
+                           <form method="POST" action="/panier/supprimer/{{ item.id }}" style="display:inline;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn-suppr">Supprimer</button>
+</form>
                             <div style="font-size: 1.5rem; font-weight: bold; color: #4f46e5;">{{ item.subtotal }}€</div>
                         </div>
                     </div>

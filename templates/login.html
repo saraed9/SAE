@@ -38,6 +38,7 @@
                 <h2 style="margin-bottom: 2rem;">Connexion</h2>
 
                 <form action="/login" method="POST">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <!-- Champ Email -->
                     <div class="form-group">
                         <label class="label">Email</label>

@@ -36,14 +36,14 @@ class Spectacle(db.Model):
 
     @staticmethod
     def tous():
-        return Spectacle.query.all()
+        return db.session.query(Spectacle).all()
 
     @staticmethod
     def par_id(spectacle_id):
-        return Spectacle.query.get(spectacle_id)
+        return db.session.get(Spectacle, spectacle_id)
 
     @staticmethod
     def prochains():
-        return Spectacle.query.filter(
+        return db.session.query(Spectacle).filter(
             Spectacle.date >= datetime.today()
         ).order_by(Spectacle.date.asc()).all()

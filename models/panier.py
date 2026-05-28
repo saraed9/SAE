@@ -17,11 +17,11 @@ class PanierItem(db.Model):
         self.quantite = quantite
     
     @classmethod
-    def get_panier_complet(self, user_id):
+    def get_panier_complet(cls, user_id):
         """Calcule les totaux et extrait les détails du panier d'un utilisateur."""
         from models.spectacle import Spectacle  # Évite les imports circulaires
         
-        panier = self.query.filter_by(user_id=user_id).order_by(self.id).all()
+        panier = cls.query.filter_by(user_id=user_id).order_by(cls.id).all()
         cart_items = []
         total = 0
         quantite_totale = 0

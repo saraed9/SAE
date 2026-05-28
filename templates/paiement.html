@@ -45,6 +45,7 @@
 
                 <!-- Formulaire -->
                 <form action="/paiement" method="POST" class="payment-body">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <!-- Nom du titulaire -->
                     <div class="form-group">
                         <label for="card_name" class="label">Nom sur la carte</label>

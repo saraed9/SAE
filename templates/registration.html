@@ -37,6 +37,7 @@
                 <h2 style="margin-bottom: 2rem;">Créer un compte</h2>
 
                 <form action="/register" method="POST">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="form-group">
                         <label class="label">Adresse Email</label>
                         <input type="email" name="email" placeholder="exemple@mail.com" class="input" 

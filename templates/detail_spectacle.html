@@ -51,11 +51,14 @@
                 <div class="card">
                     <div style="padding: 1rem;">
                         <h4 style="margin: 0 0 0.5rem 0;">{{ s.titre }}</h4>
-                        <p style="color: #6b7280; font-size: 0.875rem;">📅 {{ s.date }}</p>
-                        <p style="color: #6b7280; font-size: 0.875rem;">📍 {{ s.lieu }}</p>
+                        <p style="color: #6b7280; font-size: 0.875rem;"> {{ s.date }}</p>
+                        <p style="color: #6b7280; font-size: 0.875rem;"> {{ s.lieu }}</p>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
                             <span style="font-size: 1.2rem; font-weight: bold; color: #4f46e5;">{{ s.prix }} €</span>
-                            <a href="/panier/ajouter/{{ s.id }}" class="btn btn-primary">Réserver</a>
+                            <form method="POST" action="/panier/ajouter/{{ s.id }}">
+                              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-primary">Reserver</button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -70,7 +73,11 @@
 
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% for category, message in messages %}
-                    <p style="color: {% if category == 'error' %}red{% else %}green{% endif %};">{{ message }}</p>
+                    {% if category == 'error' %}
+                        <p style="color: red;">{{ message }}</p>
+                    {% else %}
+                        <p style="color: green;">{{ message }}</p>
+                    {% endif %}
                 {% endfor %}
             {% endwith %}
 
@@ -90,8 +97,9 @@
             {% if session.get('user_id') %}
             <div class="card" style="margin-top: 2rem;">
                 <div style="padding: 1.5rem;">
-                    <h4 style="margin: 0 0 1rem 0;">✍️ Laisser un avis</h4>
+                    <h4 style="margin: 0 0 1rem 0;"> Laisser un avis</h4>
                     <form method="POST" action="/avis/ajouter/{{ grand.id }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <textarea 
                             name="commentaire" 
                             placeholder="Votre commentaire (3 à 900 caractères)..." 

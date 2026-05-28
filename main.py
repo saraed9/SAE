@@ -1,7 +1,7 @@
 from flask import Flask, flash, redirect, render_template, request, session
 from datetime import datetime
 import os
-
+from flask_wtf.csrf import CSRFProtect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import re
@@ -17,14 +17,7 @@ from services.paiement import verifCarte
 
 
 app = Flask(__name__)
-
-# Configuration du rate limiter pour limiter les requêtes par adresse IP
-limiter = Limiter(
-    get_remote_address,
-    app=app,
-    default_limits=["200 per day", "50 per hour"],
-    storage_uri="memory://"     # stockage en mémoire vive du serveur
-)
+csrf = CSRFProtect(app) 
 
 # Configuration du rate limiter pour limiter les requêtes par adresse IP
 limiter = Limiter(
@@ -36,7 +29,9 @@ limiter = Limiter(
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:postgres123@localhost/tickets_spectacle'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = os.urandom(32).hex()
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')  # Utiliser une variable d'environnement pour la clé secrète en production
+if not app.config['SECRET_KEY']:
+    raise RuntimeError("SECRET_KEY non definie.")
 
 db.init_app(app)
 bcrypt.init_app(app)
@@ -122,15 +117,15 @@ def profil():
         flash("Vous devez être connecté pour voir votre profil", "info")
         return redirect('/login')
     
-    user = User.query.get(session['user_id'])
+    user = db.session.get(User,session['user_id'])
     commandes = Commande.get_by_user(session['user_id'])
     return render_template('profil.html', user=user, orders=commandes)
 
 @app.route('/spectacle/<int:id>')
 def detail_spectacle(id):
-    grand = GrandSpectacle.query.get_or_404(id)
-    representations = Spectacle.query.filter_by(grand_spectacle_id=id).all()
-    avis = Avis.query.filter_by(grand_spectacle_id=id).all()
+    grand = db.session.get(GrandSpectacle, id)
+    representations = db.session.query(Spectacle).filter(Spectacle.grand_spectacle_id == id).all()
+    avis = db.session.query(Avis).filter(Avis.grand_spectacle_id == id).all()
     return render_template('detail_spectacle.html', grand=grand, representations=representations, avis=avis)
 
 @app.route('/avis/ajouter/<int:grand_spectacle_id>', methods=['POST'])
@@ -163,7 +158,7 @@ def panier():
     panier = PanierItem.get_panier_complet(session['user_id'])
     return render_template('panier.html', items=panier['items'], total=panier['montant_total'])
 
-@app.route('/panier/ajouter/<int:spectacle_id>')
+@app.route('/panier/ajouter/<int:spectacle_id>', methods=['POST'])
 def ajouter_panier(spectacle_id):
     if 'user_id' not in session:
         flash("Vous devez être connecté pour ajouter un spectacle à votre panier", "info")
@@ -184,7 +179,7 @@ def ajouter_panier(spectacle_id):
     db.session.commit()
     return redirect('/panier')
 
-@app.route('/panier/diminuer/<int:spectacle_id>')
+@app.route('/panier/diminuer/<int:spectacle_id>', methods=['POST'])
 def diminuer_panier(spectacle_id):
     if 'user_id' not in session:
         flash("Vous devez être connecté pour modifier votre panier", "info")
@@ -199,7 +194,7 @@ def diminuer_panier(spectacle_id):
         db.session.commit()
     return redirect('/panier')
 
-@app.route('/panier/supprimer/<int:spectacle_id>')
+@app.route('/panier/supprimer/<int:spectacle_id>', methods=['POST'])
 def supprimer_panier(spectacle_id):
     if 'user_id' not in session:
         flash("Vous devez être connecté pour modifier votre panier", "info")
